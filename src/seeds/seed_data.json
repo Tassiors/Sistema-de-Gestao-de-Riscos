@@ -1,0 +1,2068 @@
+{
+  "unidades": [
+    {
+      "codigo": "0",
+      "nome": "Divisão de Administração e Finanças",
+      "tipo": "DIVISAO"
+    },
+    {
+      "codigo": "1",
+      "nome": "Divisão de Apoio Diagnóstico e Terapêutico",
+      "tipo": "DIVISAO"
+    },
+    {
+      "codigo": "2",
+      "nome": "Divisão de Enfermagem",
+      "tipo": "DIVISAO"
+    },
+    {
+      "codigo": "3",
+      "nome": "Divisão de Gestão de Pessoas",
+      "tipo": "DIVISAO"
+    },
+    {
+      "codigo": "4",
+      "nome": "Divisão de Gestão do Cuidado",
+      "tipo": "DIVISAO"
+    },
+    {
+      "codigo": "5",
+      "nome": "Divisão de Logística e Infraestrutura",
+      "tipo": "DIVISAO"
+    },
+    {
+      "codigo": "6",
+      "nome": "Divisão Médica",
+      "tipo": "DIVISAO"
+    },
+    {
+      "codigo": "7",
+      "nome": "Gerência Administrativa",
+      "tipo": "GERENCIA"
+    },
+    {
+      "codigo": "8",
+      "nome": "Gerência de Atenção à Saúde",
+      "tipo": "GERENCIA"
+    },
+    {
+      "codigo": "9",
+      "nome": "Gerência de Ensino e Pesquisa",
+      "tipo": "GERENCIA"
+    },
+    {
+      "codigo": "10",
+      "nome": "Ouvidoria",
+      "tipo": "ORGAO_INDEPENDENTE"
+    },
+    {
+      "codigo": "11",
+      "nome": "Setor de Abastecimento Farmacêutico e Suprimentos",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "12",
+      "nome": "Setor de Administração",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "13",
+      "nome": "Setor de Apoio Diagnóstico e Terapêutico",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "14",
+      "nome": "Setor de Contabilidade",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "15",
+      "nome": "Setor de Contratualização",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "16",
+      "nome": "Setor de Engenharia Clínica",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "17",
+      "nome": "Setor de Farmácia Hospitalar",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "18",
+      "nome": "Setor de Gestão da Pesquisa e da Inovação Tecnológica em Saúde",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "19",
+      "nome": "Setor de Gestão da Qualidade",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "20",
+      "nome": "Setor de Gestão do Ensino",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "21",
+      "nome": "Setor de Gestão Orçamentária e Financeira",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "22",
+      "nome": "Setor de Governança e Estratégia",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "23",
+      "nome": "Setor de Hotelaria Hospitalar",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "24",
+      "nome": "Setor de Infraestrutura Física",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "25",
+      "nome": "Setor de Tecnologia da Informação e Saúde Digital",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "26",
+      "nome": "Setor do Paciente Crítico",
+      "tipo": "SETOR"
+    },
+    {
+      "codigo": "27",
+      "nome": "Superintendência",
+      "tipo": "GERENCIA"
+    },
+    {
+      "codigo": "28",
+      "nome": "Unidade da Criança e do Adolescente",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "29",
+      "nome": "Unidade de Administração de Pessoal",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "30",
+      "nome": "Unidade de Almoxarifado e Controle de Estoques",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "31",
+      "nome": "Unidade de Ambulatório",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "32",
+      "nome": "Unidade de Análises Clínicas e Anatomia Patológica",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "33",
+      "nome": "Unidade de Apoio à Gestão em Enfermagem",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "34",
+      "nome": "Unidade de Bloco Cirúrgico e Processamento de Material Esterilizado",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "35",
+      "nome": "Unidade de Cabeça e Pescoço",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "36",
+      "nome": "Unidade de Clínica Cirúrgica",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "37",
+      "nome": "Unidade de Clínica Médica",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "38",
+      "nome": "Unidade de Compras e Licitações",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "39",
+      "nome": "Unidade de Comunicação Social",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "40",
+      "nome": "Unidade de Contratos",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "41",
+      "nome": "Unidade de Contratualização",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "42",
+      "nome": "Unidade de Desenvolvimento de Pessoal",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "43",
+      "nome": "Unidade de Diagnóstico por Imagem",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "44",
+      "nome": "Unidade de Diagnósticos Especializados",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "45",
+      "nome": "Unidade de e-Saúde",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "46",
+      "nome": "Unidade de Execução Orçamentária e Financeira",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "47",
+      "nome": "Unidade de Farmácia Clínica e Dispensação Farmacêutica",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "48",
+      "nome": "Unidade de Fiscalização Administrativa de Contratos",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "49",
+      "nome": "Unidade de Gestão da Inovação Tecnológica em Saúde",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "50",
+      "nome": "Unidade de Gestão da Pesquisa",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "51",
+      "nome": "Unidade de Gestão da Qualidade e Segurança do Paciente",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "52",
+      "nome": "Unidade de Gestão de Graduação, Ensino Técnico e Extensão",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "53",
+      "nome": "Unidade de Gestão de Pós-Graduação",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "54",
+      "nome": "Unidade de Gestão e Processamento da Informação Assistencial",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "55",
+      "nome": "Unidade de Gestão Estratégica, de Riscos e Controles Internos",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "56",
+      "nome": "Unidade de Hematologia, Hemoterapia e Oncologia",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "57",
+      "nome": "Unidade de Infraestrutura, Suporte e Segurança da Informação",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "58",
+      "nome": "Unidade de Patrimônio",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "59",
+      "nome": "Unidade de Planejamento e Dimensionamento de Estoques",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "60",
+      "nome": "Unidade de Planejamento e Gestão Orçamentária",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "61",
+      "nome": "Unidade de Regulação Interna",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "62",
+      "nome": "Unidade de Saúde da Mulher",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "63",
+      "nome": "Unidade de Saúde Mental",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "64",
+      "nome": "Unidade de Saúde Ocupacional e Segurança do Trabalho",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "65",
+      "nome": "Unidade de Serviços Gerais",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "66",
+      "nome": "Unidade de Sistema Urinário",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "67",
+      "nome": "Unidade de Sistemas de Informação e Inteligência de Dados",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "68",
+      "nome": "Unidade de Terapia Intensiva Adulto",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "69",
+      "nome": "Unidade de Terapia Intensiva Pediátrica e Neonatal",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "70",
+      "nome": "Unidade de Transplantes",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "71",
+      "nome": "Unidade de Urgência e Emergência",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "72",
+      "nome": "Unidade de Vigilância em Saúde",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "73",
+      "nome": "Unidade do Sistema Cardiovascular",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "74",
+      "nome": "Unidade do Sistema Neuro-Músculo-Esquelético",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "75",
+      "nome": "Unidade Multiprofissional",
+      "tipo": "UNIDADE"
+    },
+    {
+      "codigo": "76",
+      "nome": "Auditoria",
+      "tipo": "ORGAO_INDEPENDENTE"
+    },
+    {
+      "codigo": "77",
+      "nome": "Colegiado Executivo",
+      "tipo": "ORGAO_INDEPENDENTE"
+    },
+    {
+      "codigo": "78",
+      "nome": "Conselho Consultivo",
+      "tipo": "ORGAO_INDEPENDENTE"
+    }
+  ],
+  "pilares": [
+    {
+      "numero": 1,
+      "nome": "Sociedade"
+    },
+    {
+      "numero": 2,
+      "nome": "Responsabilidade Ambiental, Social e Governança"
+    },
+    {
+      "numero": 3,
+      "nome": "Desenvolvimento Institucional"
+    },
+    {
+      "numero": 4,
+      "nome": "Sustentabilidade Financeira"
+    },
+    {
+      "numero": 5,
+      "nome": "Desenvolvimento do Trabalhador"
+    }
+  ],
+  "macroprocessos": [
+    {
+      "nome": "Autorizar realização de pesquisa",
+      "processos": [
+        {
+          "nome": "Autorizar realização de pesquisa",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Avaliar residentes",
+      "processos": [
+        {
+          "nome": "Avaliar residentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Avaliar tecnologias em saúde",
+      "processos": [
+        {
+          "nome": "Realizar avaliação de tecnologias em saúde (ATS)",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Consolidar resultados de pesquisa",
+      "processos": [
+        {
+          "nome": "Consolidar resultados dos projetos de pesquisa",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Desenvolver e reter pessoas",
+      "processos": [
+        {
+          "nome": "Promover capacitação",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir avaliação de desempenho",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir progressão funcional de carreira",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Acompanhar período de experiência",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir afastamentos para capacitações fora do país",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Digitalizar prontuários",
+      "processos": [
+        {
+          "nome": "Gerir digitalização de prontuários físicos",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir admissão de pacientes",
+      "processos": [
+        {
+          "nome": "Gerir admissão ambulatorial",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir admissão hospitalar",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir admissão na urgência e emergência",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir arquitetura organizacional",
+      "processos": [
+        {
+          "nome": "Solicitar alterações na arquitetura organizacional",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir atividades de preceptoria",
+      "processos": [
+        {
+          "nome": "Monitorar atividades de supervisão/preceptoria de atividades de graduação e ensino técnico",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir modelo de atuação da supervisão e preceptoria na Rede Ebserh",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Planejar qualificação de preceptores",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir contabilidade",
+      "processos": [
+        {
+          "nome": "Gerir cadastros em sistemas oficiais",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir registros contábeis",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Elaborar relatórios e documentos contábeis",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Elaborar declarações para órgãos fazendários/fisco",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar conformidade de registro de gestão das transações",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir conteúdo comunicacional",
+      "processos": [
+        {
+          "nome": "Produzir matéria jornalística e comunicados",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir mídias e portais da internet e intranet",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar produção audiovisual",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir redes sociais",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir contratos e atas de registro de preços",
+      "processos": [
+        {
+          "nome": "Formalizar contratação",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Formalizar e gerir ARP",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Fiscalizar contratação",
+          "is_transversal": true,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir custos",
+      "processos": [
+        {
+          "nome": "Apurar custos hospitalares",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Mensurar custos hospitalares",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Analisar custos hospitalares",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar custos hospitalares",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir demandas da população",
+      "processos": [
+        {
+          "nome": "Tratar demandas da população",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir e-Saúde",
+      "processos": [
+        {
+          "nome": "Gerir e-Saúde",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir equipamentos médico-hospitalares",
+      "processos": [
+        {
+          "nome": "Gerir dimensionamento de EMH",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir atualização tecnológica de EMH",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar manutenção corretiva programada de EMH",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar capacitações e treinamentos de EMH",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir plano de substituição dos EMH",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar o parque tecnológico de EMH",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir estoque",
+      "processos": [
+        {
+          "nome": "Requisitar compra de material não padronizado",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar planejamento de insumos",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Requisitar (re)suprimento de material de consumo",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Receber material de consumo",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Armazenar material de consumo",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Distribuir material de consumo",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar movimentação de estoque na rede",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir estratégia",
+      "processos": [
+        {
+          "nome": "Elaborar planos diretores",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar desempenho da estratégia",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir estrutura de ensino",
+      "processos": [
+        {
+          "nome": "Gerir infraestrutura dos espaços de ensino",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir agenda de utilização dos espaços de ensino",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar avaliação do campo de prática de ensino",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir estrutura do campo de prática de pesquisa",
+      "processos": [
+        {
+          "nome": "Gerir infraestrutura para realização de pesquisa",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir finanças",
+      "processos": [
+        {
+          "nome": "Elaborar programação financeira mensal",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar disponibilidades financeiras",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar apuração para encerramento do exercício",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir informação clínica em meio físico",
+      "processos": [
+        {
+          "nome": "Gerir prontuário físico do paciente",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir arquivo de prontuários físicos do paciente",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir informação de pessoal",
+      "processos": [
+        {
+          "nome": "Cadastrar novos colaboradores",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir alterações nos cadastros dos empregados Ebserh",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir férias, frequência e afastamento",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Elaborar relatórios fiscais e trabalhistas para órgãos de controle",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir escalas de trabalho",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Elaborar atos administrativos relativos à gestão de pessoas",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir inovação",
+      "processos": [
+        {
+          "nome": "Gerir idealização",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir conversão/prototipação de ideias",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir conhecimento",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir instrumento formal de contratualização",
+      "processos": [
+        {
+          "nome": "Formalizar instrumento de contratualização SUS",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar desempenho da contratualização",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir inventário",
+      "processos": [
+        {
+          "nome": "Realizar inventário periódico",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar inventário anual",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir linhas de cuidado",
+      "processos": [
+        {
+          "nome": "Definir linhas de cuidado",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Estruturar linhas de cuidado",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Implementar linhas de cuidado",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir manutenção predial",
+      "processos": [
+        {
+          "nome": "Avaliar viabilidade da manutenção predial e equipamentos de infraestrutura",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Elaborar plano de MANUTEÇÃO preventiva predial e equipamentos de infraestrutura",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Planejar manutenção predial e equipamentos de infraestrutura",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar manutenção predial e equipamentos de infraestrutura",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Atualizar cadastro de infraestrutura física",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir obras",
+      "processos": [
+        {
+          "nome": "Gerir plano diretor físico",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar avaliação técnica especializada",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Avaliar viabilidade do projeto",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Elaborar projetos de arquitetura e engenharias",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Fiscalizar obra",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar obra",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Receber obra",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir orçamento",
+      "processos": [
+        {
+          "nome": "Emitir e gerenciar empenho",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar liquidação de despesa e pagamento",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir alterações orçamentárias",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir movimentação de créditos",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Emitir disponibilidade orçamentária",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir pesquisa de satisfação",
+      "processos": [
+        {
+          "nome": "Gerir pesquisa de satisfação (usuário SUS e residentes)",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir portfólio de projetos",
+      "processos": [
+        {
+          "nome": "Desenvolver portfólio",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerenciar portfólio",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Entregar benefícios",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir prestação de serviços de apoio diagnóstico e terapêutico",
+      "processos": [
+        {
+          "nome": "Processar produtos para saúde (CME)",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir banco de material biológico",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir cuidados médicos",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir cuidado de enfermagem",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir cuidados da equipe multiprofissional",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir processamento da informação assistencial",
+      "processos": [
+        {
+          "nome": "Gerir o cadastro dos hospitais no CNES",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Processar informação assistencial",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir glosas/rejeições",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir programas de aprendizagem profissional não obrigatórios",
+      "processos": [
+        {
+          "nome": "Gerir contratação de estagiários",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir projetos",
+      "processos": [
+        {
+          "nome": "Gerir mudança",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Avaliar proposta",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Planejar projeto",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Executar projeto",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Entregar resultado",
+          "is_transversal": true,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir prontuário eletrônico do paciente",
+      "processos": [
+        {
+          "nome": "Gerir prontuário eletrônico do paciente",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir qualidade",
+      "processos": [
+        {
+          "nome": "Gerir ações de segurança do paciente",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir ações de humanização",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir programa Ebserh de gestão à vista",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir vigilância sanitária",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir vigilância epidemiológica",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir relacionamento com a imprensa",
+      "processos": [
+        {
+          "nome": "Atender demandas da imprensa",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Produzir sugestão de pauta para a imprensa",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar informações na mídia",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir relações trabalhistas",
+      "processos": [
+        {
+          "nome": "Mensurar clima organizacional",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir resolução de conflitos",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir riscos",
+      "processos": [
+        {
+          "nome": "Realizar identificação e avaliação dos eventos de riscos",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Estabelecer atividades de controle para os riscos priorizados",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar os riscos",
+          "is_transversal": true,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir selo Ebserh de qualidade",
+      "processos": [
+        {
+          "nome": "Realizar avaliação interna da qualidade",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir serviços de hotelaria hospitalar",
+      "processos": [
+        {
+          "nome": "Gerir gerenciamento de resíduos",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir enxoval hospitalar",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir o serviço de higienização hospitalar",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir o serviço de controle e manejo de pragas e vetores",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir áreas de uso coletivo",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir transporte externo do paciente",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir colchões hospitalares e travesseiros",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir produção e distribuição de dietas orais",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir serviços de suporte",
+      "processos": [
+        {
+          "nome": "Gerir serviços gerais",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir serviços mediados pela tecnologia",
+      "processos": [
+        {
+          "nome": "Realizar teleconsultoria",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar teleinterconsulta",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gerir órgãos colegiados",
+      "processos": [
+        {
+          "nome": "Gerir Colegiados Internos",
+          "is_transversal": true,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Gestão de óbitos",
+      "processos": [
+        {
+          "nome": "Gerir alta por óbito",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir doação de órgãos",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar necrópsia",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Identificar capacidade instalada",
+      "processos": [
+        {
+          "nome": "Identificar oferta do ambulatório",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Identificar oferta da internação",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Identificar oferta do centro cirúrgico",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Identificar oferta dos serviços de apoio diagnóstico",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Institucionalizar soluções de TI",
+      "processos": [
+        {
+          "nome": "Institucionalizar soluções de TI",
+          "is_transversal": true,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Internalizar instrumento formal de contratualização",
+      "processos": [
+        {
+          "nome": "Implantar contrato interno de gestão",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Implantar as unidades de produção",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Monitorar atividades de ensino",
+      "processos": [
+        {
+          "nome": "Monitorar atividades de ensino",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar atividades de extensão",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir informações e acessos de estudantes e docentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Monitorar pesquisa",
+      "processos": [
+        {
+          "nome": "Monitorar atividades de pesquisa acadêmica",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar atividades de pesquisa patrocinada",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Monitorar resultados",
+      "processos": [
+        {
+          "nome": "Definir indicadores e metas",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Mensurar indicadores",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Avaliar resultados",
+          "is_transversal": true,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Outro",
+      "processos": [
+        {
+          "nome": "Outro processo",
+          "is_transversal": true,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Promover segurança e saúde dos trabalhadores",
+      "processos": [
+        {
+          "nome": "Realizar inspeções de segurança",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir programas de segurança do trabalho",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Emitir laudo de insalubridade e/ou periculosidade",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir acidentes de trabalho",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir programas de saúde ocupacional",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir prontuário médico dos trabalhadores",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Promover transparência institucional",
+      "processos": [
+        {
+          "nome": "Gerir ações de transparência",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir carta de serviços (CS)",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Elaborar relatórios de prestação de contas para a sociedade",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Prover arquitetura de dados",
+      "processos": [
+        {
+          "nome": "Definir diretrizes de análise de dados",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Armazenar dados",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Tratar dados",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Disponibilizar fonte de dados",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Prover infraestrutura de TI",
+      "processos": [
+        {
+          "nome": "Gerir necessidade de infraestrutura de TI",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Implantar infraestrutura de TI",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir disponibilidade de infraestrutura de TI",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Prover painéis de análise de dados",
+      "processos": [
+        {
+          "nome": "Elaborar painéis de análise de dados",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir disponibilidade de painéis de análise de dados",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Prover suporte de painéis de análise de dados",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Prover profissionais",
+      "processos": [
+        {
+          "nome": "Ceder empregados Ebserh para outros órgãos",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar integração, contratação e lotação de colaboradores",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Nomear gestores para cargos comissionados e funções gratificadas",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Movimentar colaboradores",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Prover soluções de sistemas de informação",
+      "processos": [
+        {
+          "nome": "Gerir disponibilidade de sistemas de informação",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir necessidade de sistemas de informação",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Desenvolver sistemas de informação",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Implantar sistemas de informação",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar a gestão e melhoria de processos",
+      "processos": [
+        {
+          "nome": "Realizar gestão do dia a dia",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar transformação de processos",
+          "is_transversal": true,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar acolhimento dos estudantes",
+      "processos": [
+        {
+          "nome": "Realizar acolhimento de graduandos e alunos do ensino técnico",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Matricular residentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar acolhimento dos residentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar ações de auditoria",
+      "processos": [
+        {
+          "nome": "Realizar ações avaliativas",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir plano de providência permanente",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar ações de consultoria em atividades de controle interno",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar contratações",
+      "processos": [
+        {
+          "nome": "Planejar contratação",
+          "is_transversal": true,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Selecionar fornecedor",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar contratações locais",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar gestão documental",
+      "processos": [
+        {
+          "nome": "Gerir documentação da qualidade",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir protocolo administrativo",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir arquivo físico de documentos administrativos",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir diárias e passagens",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Estabelecer Diretrizes e Normativos Institucionais",
+          "is_transversal": true,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar gestão patrimonial",
+      "processos": [
+        {
+          "nome": "Incorporar bens permanentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir movimentações de bens permanentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar depreciação de bens permanentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar desfazimento de bens permanentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar gestão documental de móveis e imóveis",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar governança de estoques da rede",
+      "processos": [
+        {
+          "nome": "Monitorar estoque",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar governança de patrimônio",
+      "processos": [
+        {
+          "nome": "Monitorar patrimônio",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar inventário patrimonial",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar governança de processos",
+      "processos": [
+        {
+          "nome": "Gerir escritório de processos",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar investigação clínica",
+      "processos": [
+        {
+          "nome": "Realizar exames de imagem",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar exames laboratoriais",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar exames de métodos gráficos",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar planejamento de ensino",
+      "processos": [
+        {
+          "nome": "Planejar ações de apoio às atividades de graduação e ensino técnico",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Autorizar a realização de atividades de extensão",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Planejar ações de apoio às atividades de pós-graduação",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Planejar ações de apoio às atividades de residência",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar promoção institucional",
+      "processos": [
+        {
+          "nome": "Planejar campanhas",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Aprovar a aplicação da marca da Ebserh",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Organizar eventos",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Criar/editar produtos de design gráfico",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar prática de ensino",
+      "processos": [
+        {
+          "nome": "Gerir escala dos residentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Monitorar treinamento em serviço dos residentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar treinamento em serviço dos residentes",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir mobilidade em rede nos estágios opcionais das residências",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar seleção de residentes",
+      "processos": [
+        {
+          "nome": "Realizar processo seletivo para programas de residências Ebserh",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir participação no Exame Nacional de Residências Ebserh",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar suporte de TI",
+      "processos": [
+        {
+          "nome": "Prover suporte de sistemas de informação",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Prover suporte de infraestrutura de TI",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Prover suporte de segurança de TI",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir requisições de suporte de TI",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar tratamento ambulatorial",
+      "processos": [
+        {
+          "nome": "Realizar consulta ambulatorial",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar cirurgia ambulatorial",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar tratamento em hospital dia",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar tratamento ambulatorial especializado",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar tratamento domiciliar",
+      "processos": [
+        {
+          "nome": "Realizar atendimento domiciliar",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar tratamento em urgência e emergência",
+      "processos": [
+        {
+          "nome": "Realizar atendimento em urgência e emergência",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar tratamento hospitalar",
+      "processos": [
+        {
+          "nome": "Realizar internação clínica",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar tratamento em terapia intensiva",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Realizar tratamento cirúrgico",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Realizar tratamento mediado pela tecnologia",
+      "processos": [
+        {
+          "nome": "Realizar teleconsulta",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Regular acesso aos serviços assistenciais",
+      "processos": [
+        {
+          "nome": "Gerir agenda do ambulatório",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir leito",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir agenda do centro cirúrgico",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir agenda de apoio a diagnóstico",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir transferências internas",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    },
+    {
+      "nome": "Saída ambulatorial",
+      "processos": [
+        {
+          "nome": "Gerir alta ambulatorial",
+          "is_transversal": false,
+          "permite_projeto": false
+        },
+        {
+          "nome": "Gerir alta hospitalar",
+          "is_transversal": false,
+          "permite_projeto": false
+        }
+      ]
+    }
+  ]
+}

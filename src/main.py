@@ -10,19 +10,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from .resources.database import DatabaseManager, Base
+from . import models
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     print("Starting up...")
-
-    # Initialize AGHU DB Manager and store in app.state
-    aghu_dsn = os.getenv("POSTGRES_DSN")
-    if aghu_dsn:
-        app.state.aghu_db = DatabaseManager(aghu_dsn)
-        print("AGHU PostgreSQL connection pool initialized.")
-    else:
-        print("WARNING: POSTGRES_DSN not found. Skipping AGHU DB initialization.")
 
     # Initialize App DB Manager (SQLite) and store in app.state
     app_dsn = os.getenv("SQLITE_DSN") or os.getenv("APP_DB_URL") or "sqlite+aiosqlite:///data/app.db"
@@ -39,9 +32,6 @@ async def lifespan(app: FastAPI):
 
     # Shutdown
     print("Shutting down...")
-    if hasattr(app.state, 'aghu_db') and app.state.aghu_db:
-        await app.state.aghu_db.close_connection()
-        print("AGHU PostgreSQL connection pool closed.")
     if hasattr(app.state, 'app_db') and app.state.app_db:
         await app.state.app_db.close_connection()
         print("App SQLite connection pool closed.")
@@ -109,11 +99,13 @@ if os.path.exists(assets_dir):
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 # Roteadores da API
-from .routers import paciente, auth, admin, health
+from .routers import auth, admin, health, unidade, processo, risco
 app.include_router(health.router)
-app.include_router(paciente.router)
 app.include_router(auth.router)
 app.include_router(admin.router)
+app.include_router(unidade.router)
+app.include_router(processo.router)
+app.include_router(risco.router)
 
 @app.get("/{full_path:path}")
 async def serve_frontend(full_path: str):

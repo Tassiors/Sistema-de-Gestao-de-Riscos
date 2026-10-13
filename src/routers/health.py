@@ -33,16 +33,6 @@ async def health_check(request: Request):
         db_status["app_db"] = f"error: {str(e)}"
         is_healthy = False
 
-    # 2. Checar banco AGHU (PostgreSQL, se configurado)
-    if hasattr(request.app.state, 'aghu_db') and request.app.state.aghu_db:
-        try:
-            async with request.app.state.aghu_db.async_session_maker() as session:
-                await session.execute(text("SELECT 1"))
-            db_status["aghu_postgres"] = "connected"
-        except Exception as e:
-            db_status["aghu_postgres"] = f"error: {str(e)}"
-    else:
-        db_status["aghu_postgres"] = "disabled_or_not_configured"
 
     response_payload = {
         "status": "healthy" if is_healthy else "unhealthy",

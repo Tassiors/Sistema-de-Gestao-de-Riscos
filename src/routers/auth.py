@@ -6,6 +6,7 @@ from starlette.concurrency import run_in_threadpool
 
 from ..auth.auth import auth_handler, JWT_EXP_HOURS, REFRESH_TOKEN_EXP_DAYS
 from ..resources.database import get_app_db_session
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api", tags=["Authentication"])
@@ -26,6 +27,21 @@ async def login(
         raise e
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An unexpected error occurred: {e}")
+
+    # Consulta perfil local no banco de dados
+    from ..models.usuario import Usuario
+    stmt = select(Usuario).where(Usuario.username == user["username"])
+    res = await db.execute(stmt)
+    u_db = res.scalar_one_or_none()
+    if u_db:
+        if not u_db.ativo:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuário inativo no sistema.")
+        user["perfil"] = u_db.perfil
+        user["unidade_principal_id"] = u_db.unidade_principal_id
+    elif "GLO-SEC-HCPE-SETISD" in user.get("groups", []) or user.get("username") in ["admin", "tassio.silva", "renata.albuquerque.1"]:
+        user["perfil"] = "ADMINISTRADOR"
+    else:
+        user["perfil"] = "CONSULTA_SETORIAL"
 
     access_token_expires = timedelta(minutes=15) if remember_me else timedelta(hours=JWT_EXP_HOURS)
     access_token = auth_handler.create_access_token(

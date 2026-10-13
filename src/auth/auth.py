@@ -22,6 +22,23 @@ JWT_EXP_HOURS = int(os.getenv("JWT_EXP_HOURS", 24))
 REFRESH_TOKEN_EXP_DAYS = int(os.getenv("REFRESH_TOKEN_EXP_DAYS", 30))
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
+def normalize_username(raw_username: str) -> str:
+    """
+    Normaliza o nome de usuário removendo prefixos de domínio (ex: EBSERHNET\\)
+    e sufixos de e-mail (ex: @hubrasil.gov.br, @ebserh.gov.br).
+    """
+    if not raw_username:
+        return ""
+    clean = raw_username.strip()
+    if "\\" in clean:
+        clean = clean.split("\\")[-1]
+    if "/" in clean:
+        clean = clean.split("/")[-1]
+    if "@" in clean:
+        clean = clean.split("@")[0]
+    return clean.lower()
+
+
 # --- Interface e Implementações de Provedor de Autenticação ---
 
 class AuthProviderInterface(ABC):
@@ -38,26 +55,55 @@ class MockAuthProvider(AuthProviderInterface):
     """Provedor de autenticação mock para desenvolvimento offline."""
     def authenticate_user(self, username, password) -> dict:
         print("--- Using Mock Authentication ---")
-        if username == "admin" and password == "admin":
-            print(f"Authentication successful for mock user: {username}")
-            # O nome do grupo que o frontend usa para identificar administradores
-            admin_group = "GLO-SEC-HCPE-SETISD"
-            return {
-                "username": "admin",
+        clean_username = normalize_username(username)
+        admin_group = "GLO-SEC-HCPE-SETISD"
+
+        admin_profiles = {
+            "admin": {
                 "displayName": ["Mock Admin"],
-                "groups": [admin_group, "Users"],
                 "email": "admin@mock.com"
+            },
+            "tassio.silva": {
+                "displayName": ["Tássio Silva"],
+                "email": "tassio.silva@hubrasil.gov.br"
+            },
+            "renata.albuquerque.1": {
+                "displayName": ["Renata Albuquerque"],
+                "email": "renata.albuquerque.1@hubrasil.gov.br"
             }
-        else:
-            print(f"Authentication failed for mock user: {username}")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, 
-                detail="Invalid mock credentials"
-            )
+        }
+
+        # Aceita administradores mestre com senhas convenientes de desenvolvimento
+        if clean_username in admin_profiles:
+            prof = admin_profiles[clean_username]
+            print(f"Authentication successful for mock admin user: {clean_username}")
+            return {
+                "username": clean_username,
+                "displayName": prof["displayName"],
+                "groups": [admin_group, "Users"],
+                "email": prof["email"]
+            }
+
+        # Demais usuários mock (ex: joao.silva, maria.souza, etc.)
+        user_info = self.search_user(clean_username)
+        if user_info.get("exists"):
+            print(f"Authentication successful for mock user: {clean_username}")
+            return {
+                "username": clean_username,
+                "displayName": [user_info["displayName"]],
+                "groups": ["Users"],
+                "email": user_info["email"]
+            }
+
+        print(f"Authentication failed for mock user: {clean_username}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Credenciais inválidas no ambiente de desenvolvimento (Mock)"
+        )
 
     def search_user(self, username: str) -> dict:
         """Busca simulada de usuário no AD para desenvolvimento/teste."""
-        clean_username = username.strip().lower()
+        clean_username = normalize_username(username)
         mock_users = {
             "admin": {
                 "exists": True,
@@ -65,6 +111,20 @@ class MockAuthProvider(AuthProviderInterface):
                 "displayName": "Administrador do Sistema",
                 "email": "admin@ebserh.gov.br",
                 "department": "SETISD / HC-UFPE"
+            },
+            "tassio.silva": {
+                "exists": True,
+                "username": "tassio.silva",
+                "displayName": "Tássio Silva",
+                "email": "tassio.silva@hubrasil.gov.br",
+                "department": "UGERC / HC-UFPE"
+            },
+            "renata.albuquerque.1": {
+                "exists": True,
+                "username": "renata.albuquerque.1",
+                "displayName": "Renata Albuquerque",
+                "email": "renata.albuquerque.1@hubrasil.gov.br",
+                "department": "UGERC / HC-UFPE"
             },
             "joao.silva": {
                 "exists": True,
@@ -144,10 +204,11 @@ class ActiveDirectoryAuthProvider(AuthProviderInterface):
             raise RuntimeError("Active Directory is not configured. Check .env file.")
 
     def authenticate_user(self, username, password) -> dict:
-        print(f"--- Starting AD Authentication (ldap3) for user: {username} ---")
+        clean_username = normalize_username(username)
+        print(f"--- Starting AD Authentication (ldap3) for user: {clean_username} ---")
         try:
             server = Server(self.ad_url, get_info=ALL)
-            user_bind_dn = f"EBSERHNET\\{username}"
+            user_bind_dn = f"EBSERHNET\\{clean_username}"
             
             # Autenticação inicial (Bind)
             conn = Connection(server, user=user_bind_dn, password=password, authentication=SIMPLE, check_names=True, raise_exceptions=True)
@@ -161,14 +222,14 @@ class ActiveDirectoryAuthProvider(AuthProviderInterface):
                 search_conn = Connection(server, user=self.ad_bind_user, password=self.ad_bind_password, authentication=SIMPLE, check_names=True, raise_exceptions=True)
                 search_conn.bind()
 
-            search_filter = f"(&(objectClass=user)(sAMAccountName={username}))"
+            search_filter = f"(&(objectClass=user)(sAMAccountName={clean_username}))"
             search_conn.search(self.ad_basedn, search_filter, search_scope=SUBTREE, attributes=['*'])
 
             if not search_conn.entries:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User found during bind but search returned no data.")
 
             user_entry = search_conn.entries[0]
-            user_info = {"username": username}
+            user_info = {"username": clean_username}
             groups = []
 
             # Extração de atributos selecionados para evitar problemas de serialização (como datetime)
@@ -209,7 +270,7 @@ class ActiveDirectoryAuthProvider(AuthProviderInterface):
                 search_conn.unbind()
             conn.unbind()
             
-            print(f"--- AD Authentication successful for user: {username}. ---")
+            print(f"--- AD Authentication successful for user: {clean_username}. ---")
             return user_info
 
         except Exception as e:
@@ -224,7 +285,8 @@ class ActiveDirectoryAuthProvider(AuthProviderInterface):
 
     def search_user(self, username: str) -> dict:
         """Busca dados de um usuário no AD pelo login (sAMAccountName) sem efetuar login dele."""
-        print(f"--- Searching AD User info (ldap3) for: {username} ---")
+        clean_username = normalize_username(username)
+        print(f"--- Searching AD User info (ldap3) for: {clean_username} ---")
         try:
             server = Server(self.ad_url, get_info=ALL)
             if self.ad_bind_user and self.ad_bind_password:
@@ -233,28 +295,28 @@ class ActiveDirectoryAuthProvider(AuthProviderInterface):
                 conn = Connection(server, authentication=SIMPLE, check_names=True, raise_exceptions=True)
             
             conn.bind()
-            search_filter = f"(&(objectClass=user)(sAMAccountName={username}))"
+            search_filter = f"(&(objectClass=user)(sAMAccountName={clean_username}))"
             conn.search(self.ad_basedn, search_filter, search_scope=SUBTREE, attributes=['displayName', 'mail', 'department', 'title', 'sAMAccountName'])
 
             if not conn.entries:
                 conn.unbind()
                 return {
                     "exists": False,
-                    "username": username,
+                    "username": clean_username,
                     "displayName": "",
                     "email": "",
                     "department": ""
                 }
 
             entry = conn.entries[0]
-            display_name = str(entry.displayName.value) if 'displayName' in entry and entry.displayName.value else username
+            display_name = str(entry.displayName.value) if 'displayName' in entry and entry.displayName.value else clean_username
             email = str(entry.mail.value) if 'mail' in entry and entry.mail.value else ""
             department = str(entry.department.value) if 'department' in entry and entry.department.value else "HC-UFPE / EBSERH"
 
             conn.unbind()
             return {
                 "exists": True,
-                "username": username,
+                "username": clean_username,
                 "displayName": display_name,
                 "email": email,
                 "department": department

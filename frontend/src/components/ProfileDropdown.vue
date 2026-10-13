@@ -41,13 +41,6 @@
               <p class="text-gray-800 font-medium leading-snug">{{ authStore.user?.department?.[0] || 'Não Informado' }}</p>
             </div>
           </div>
-          <div class="flex items-start">
-            <IdentificationIcon class="h-5 w-5 mr-3 text-gray-400 shrink-0 mt-0.5" />
-            <div class="flex-1">
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Matrícula</p>
-              <p class="text-gray-800 font-medium leading-snug">{{ authStore.user?.employeeNumber?.[0] || 'Não Informado' }}</p>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -64,7 +57,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { UserCircleIcon, ArrowLeftOnRectangleIcon, BriefcaseIcon, BuildingOffice2Icon, IdentificationIcon } from '@heroicons/vue/24/outline';
+import { UserCircleIcon, ArrowLeftOnRectangleIcon, BriefcaseIcon, BuildingOffice2Icon } from '@heroicons/vue/24/outline';
 import { useAuthStore } from '../stores/auth';
 
 const route = useRoute();

@@ -1,17 +1,14 @@
 import { createRouter, createWebHistory, NavigationGuardNext } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
-import Configuracoes from '../views/Configuracoes.vue';
-
-import Exemplos from '../views/Exemplos.vue';
-import Pacientes from '../views/Pacientes.vue';
+import PainelRiscos from '../views/riscos/PainelRiscos.vue';
+import MapeamentoWizard from '../views/riscos/MapeamentoWizard.vue';
+import GestaoUsuariosVisibilidade from '../views/admin/GestaoUsuariosVisibilidade.vue';
 
 const routes = [
   {
     path: '/',
-    name: 'Início',
-    component: Home,
+    redirect: '/riscos',
   },
   {
     path: '/login',
@@ -20,21 +17,28 @@ const routes = [
     meta: { layout: 'LoginLayout' },
   },
   {
-    path: '/componentes',
-    name: 'Componentes',
-    component: Exemplos,
-  },
-  {
-    path: '/exemplo',
-    name: 'Exemplo',
-    component: Pacientes,
+    path: '/riscos',
+    name: 'Painel de Riscos',
+    component: PainelRiscos,
     meta: { requiresAuth: true },
   },
   {
-    path: '/configuracoes',
-    name: 'Configuracoes',
-    component: Configuracoes,
+    path: '/riscos/novo',
+    name: 'Novo Mapeamento',
+    component: MapeamentoWizard,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/riscos/:id/editar',
+    name: 'Editar Mapeamento',
+    component: MapeamentoWizard,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/admin/usuarios',
+    name: 'Gestão de Usuários & Visibilidade',
+    component: GestaoUsuariosVisibilidade,
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
 ];
 
@@ -51,6 +55,8 @@ router.beforeEach((to, _from, next: NavigationGuardNext) => {
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'Login' });
+  } else if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    next({ path: '/riscos' });
   } else {
     next();
   }

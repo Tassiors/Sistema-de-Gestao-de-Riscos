@@ -9,7 +9,8 @@
           <label class="block text-sm font-bold mb-2" for="username">
             Usuário
           </label>
-          <input v-model="username" class="shadow-inner appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="E.g., EBSERHNET\\user">
+          <input v-model="username" class="shadow-inner appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="Ex: tassio.silva ou EBSERHNET\tassio.silva">
+          <p class="text-xs text-gray-500 mt-1">Utilize seu login institucional EBSERH (ex: nome.sobrenome ou EBSERHNET\login).</p>
         </div>
         <div class="mb-6">
           <label class="block text-sm font-bold mb-2" for="password">
@@ -94,7 +95,7 @@ const handleLogin = async () => {
   error.value = '';
   try {
     await authStore.login(username.value, password.value, rememberMe.value);
-    await router.push('/');
+    await router.push('/riscos');
   } catch (e: any) {
     error.value = e.response?.data?.detail || e.message || 'An unknown error occurred';
   } finally {

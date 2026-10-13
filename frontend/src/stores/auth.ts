@@ -21,7 +21,11 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!accessToken.value);
   const isAdmin = computed(() => {
     const ADMIN_GROUP = "GLO-SEC-HCPE-SETISD"; 
-    return user.value?.groups?.includes(ADMIN_GROUP) || false;
+    return (
+      user.value?.groups?.includes(ADMIN_GROUP) ||
+      (user.value as any)?.perfil === "ADMINISTRADOR" ||
+      ["admin", "tassio.silva", "renata.albuquerque.1"].includes(user.value?.username || "")
+    );
   });
 
   function setToken(token: string) {

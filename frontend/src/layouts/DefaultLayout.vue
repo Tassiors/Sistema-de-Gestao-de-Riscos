@@ -2,7 +2,7 @@
   <div class="relative h-screen overflow-hidden md:flex">
     <!-- Mobile Menu Header -->
     <div class="bg-paper-sidebar text-gray-100 flex justify-between md:hidden shrink-0">
-      <router-link to="/" class="block p-4 text-white font-bold">{{ SYSTEM_TITLE }}</router-link>
+      <router-link to="/riscos" class="block p-4 text-white font-bold">{{ SYSTEM_TITLE }}</router-link>
       <button @click="sidebarOpen = !sidebarOpen" class="p-4 focus:outline-none focus:bg-paper-active-link">
         <Bars3Icon class="h-6 w-6" />
       </button>
@@ -36,45 +36,36 @@
         <!-- Links de Navegação -->
         <nav class="space-y-2">
           <router-link 
-            to="/" 
-            :title="isCollapsed ? 'Início' : ''"
+            v-if="authStore.isAuthenticated" 
+            to="/riscos" 
+            :title="isCollapsed ? 'Painel de Riscos' : ''"
             :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
             class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
           >
-            <HomeIcon class="h-6 w-6 shrink-0"/>
-            <span v-if="!isCollapsed" class="truncate">Início</span>
-          </router-link>
-
-          <router-link 
-            to="/componentes" 
-            :title="isCollapsed ? 'Componentes' : ''"
-            :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
-            class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
-          >
-            <CubeIcon class="h-6 w-6 shrink-0" />
-            <span v-if="!isCollapsed" class="truncate">Componentes</span>
+            <ShieldExclamationIcon class="h-6 w-6 shrink-0 text-amber-300" />
+            <span v-if="!isCollapsed" class="truncate font-medium">Painel de Riscos</span>
           </router-link>
 
           <router-link 
             v-if="authStore.isAuthenticated" 
-            to="/exemplo" 
-            :title="isCollapsed ? 'Exemplo' : ''"
+            to="/riscos/novo" 
+            :title="isCollapsed ? 'Novo Mapeamento' : ''"
             :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
             class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
           >
-            <DocumentTextIcon class="h-6 w-6 shrink-0" />
-            <span v-if="!isCollapsed" class="truncate">Exemplo</span>
+            <PlusCircleIcon class="h-6 w-6 shrink-0 text-emerald-300" />
+            <span v-if="!isCollapsed" class="truncate">Novo Mapeamento</span>
           </router-link>
-          
+
           <router-link 
-            v-if="authStore.isAuthenticated" 
-            to="/configuracoes" 
-            :title="isCollapsed ? 'Configurações' : ''"
+            v-if="authStore.isAuthenticated && authStore.isAdmin" 
+            to="/admin/usuarios" 
+            :title="isCollapsed ? 'Gestores & Visibilidade' : ''"
             :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
             class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
           >
-            <Cog6ToothIcon class="h-6 w-6 shrink-0"/>
-            <span v-if="!isCollapsed" class="truncate">Configurações</span>
+            <UsersIcon class="h-6 w-6 shrink-0 text-blue-300" />
+            <span v-if="!isCollapsed" class="truncate">Gestores & Visibilidade</span>
           </router-link>
         </nav>
       </div>
@@ -120,13 +111,12 @@
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
-  HomeIcon,
-  CubeIcon,
-  DocumentTextIcon,
-  Cog6ToothIcon,
   CubeTransparentIcon,
   Bars3Icon,
   ArrowRightOnRectangleIcon,
+  ShieldExclamationIcon,
+  PlusCircleIcon,
+  UsersIcon,
 } from '@heroicons/vue/24/outline';
 import ProfileDropdown from '../components/ProfileDropdown.vue';
 import Button from '../components/Button.vue';

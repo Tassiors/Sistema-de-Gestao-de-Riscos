@@ -43,3 +43,30 @@ def test_read_users_me_with_token(client):
     assert me_response.status_code == 200
     user_data = me_response.json()
     assert user_data["username"] == "admin"
+
+
+def test_login_com_formatos_ebserh(client):
+    """
+    Testa o login utilizando diferentes formatos suportados na rede Ebserh:
+    - Login simples: tassio.silva
+    - Com domínio: EBSERHNET\\tassio.silva
+    - Com e-mail: tassio.silva@hubrasil.gov.br
+    """
+    formatos = [
+        "tassio.silva",
+        "EBSERHNET\\tassio.silva",
+        "tassio.silva@hubrasil.gov.br",
+        "renata.albuquerque.1"
+    ]
+    for user_login in formatos:
+        response = client.post(
+            "/api/login",
+            data={"username": user_login, "password": "admin"}
+        )
+        assert response.status_code == 200, f"Falha ao autenticar com {user_login}"
+        token = response.json()["access_token"]
+        me_resp = client.get("/api/users/me", headers={"Authorization": f"Bearer {token}"})
+        assert me_resp.status_code == 200
+        data = me_resp.json()
+        assert data["perfil"] == "ADMINISTRADOR"
+
