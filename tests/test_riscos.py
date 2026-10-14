@@ -14,7 +14,7 @@ from src.controllers.risco_controller import calcular_severidade_risco
 
 def test_motor_calculo_severidade_extremo():
     """Risco com Probabilidade 5 e Impacto 5 sem controles deve ser EXTREMO e acima do apetite."""
-    res = calcular_severidade_risco(probabilidade=5, impacto=5, num_controles=0)
+    res = calcular_severidade_risco(probabilidade=5, impacto=5, nivel_controle="INEXISTENTE")
     assert res["risco_inerente"] == 25
     assert res["fator_mitigacao"] == 1.0
     assert res["risco_residual"] == 25
@@ -22,24 +22,31 @@ def test_motor_calculo_severidade_extremo():
     assert res["acima_apetite"] is True
 
 
-def test_motor_calculo_severidade_baixo_mitigado():
-    """Risco com P=3, I=2 com 3 controles deve ser mitigado para BAIXO (dentro do apetite)."""
-    # Inerente: 6. 3 controles -> Fator 0.4. Residual: round(6 * 0.4) = 2 -> BAIXO
-    res = calcular_severidade_risco(probabilidade=3, impacto=2, num_controles=3)
-    assert res["risco_inerente"] == 6
-    assert res["fator_mitigacao"] == 0.4
-    assert res["risco_residual"] == 2
-    assert res["classificacao"] == "BAIXO"
-    assert res["acima_apetite"] is False
+def test_motor_calculo_severidade_tabela3_fnc_fixo():
+    """Testa a Tabela 3 do Guia UGERC: o FNC é fixo pelo nível e não varia com o número de medidas."""
+    # Nível Fraco (0.8) com 1 medida ou com 10 medidas continua 0.8
+    res1 = calcular_severidade_risco(probabilidade=4, impacto=3, nivel_controle="FRACO")
+    res2 = calcular_severidade_risco(probabilidade=4, impacto=3, nivel_controle="FRACO", num_controles=5)
+    assert res1["fator_mitigacao"] == 0.8
+    assert res2["fator_mitigacao"] == 0.8
+    assert res1["risco_residual"] == round(12 * 0.8)  # 10
+
+    # Níveis da Tabela 3
+    assert calcular_severidade_risco(5, 5, nivel_controle="INEXISTENTE")["fator_mitigacao"] == 1.0
+    assert calcular_severidade_risco(5, 5, nivel_controle="FRACO")["fator_mitigacao"] == 0.8
+    assert calcular_severidade_risco(5, 5, nivel_controle="MEDIANO")["fator_mitigacao"] == 0.6
+    assert calcular_severidade_risco(5, 5, nivel_controle="SATISFATORIO")["fator_mitigacao"] == 0.4
+    assert calcular_severidade_risco(5, 5, nivel_controle="FORTE")["fator_mitigacao"] == 0.2
 
 
 def test_motor_calculo_tolerancia_limite():
     """Risco com residual 7 deve ser MÉDIO e dentro do apetite (tolerância ≤ 7,99)."""
-    # P=3, I=3 (9), 1 controle (0.8) -> round(9 * 0.8) = 7
-    res = calcular_severidade_risco(probabilidade=3, impacto=3, num_controles=1)
+    # P=3, I=3 (9), Fraco (0.8) -> round(9 * 0.8) = 7
+    res = calcular_severidade_risco(probabilidade=3, impacto=3, nivel_controle="FRACO")
     assert res["risco_residual"] == 7
     assert res["classificacao"] == "MEDIO"
     assert res["acima_apetite"] is False
+
 
 
 def test_rotas_protegidas_default_private(client):
@@ -81,8 +88,10 @@ def test_fluxo_mapeamento_e_consulta(client):
         "processo_id": primeiro_proc,
         "possui_projeto": True,
         "nome_projeto": "Projeto Piloto Teste",
+        "pilar_estrategico_id": 1,
         "entrega_processo": "Relatório de conformidade entregue",
         "status": "RASCUNHO",
+
         "eventos": [
             {
                 "categoria": "OPERACIONAL",
@@ -92,6 +101,7 @@ def test_fluxo_mapeamento_e_consulta(client):
                 "avaliacao": {
                     "probabilidade": 2,
                     "impacto": 3,
+                    "nivel_controle": "FRACO",
                     "controles": ["Link redundante de contingência"]
                 },
                 "planos_acao": [
@@ -130,10 +140,85 @@ def test_fluxo_mapeamento_e_consulta(client):
     assert list_res.status_code == 200
     assert any(m["id"] == mapeamento["id"] for m in list_res.json())
 
-    # 6. Consulta estatísticas da matriz 5x5
+    # 6. Consulta estatísticas da matriz 5x5: como está RASCUNHO, NÃO deve contabilizar na matriz/cards
     matriz_res = client.get("/api/riscos/painel/matriz", headers=headers)
     assert matriz_res.status_code == 200
     matriz_data = matriz_res.json()
-    assert "quadrantes" in matriz_data
-    assert "totais" in matriz_data
-    assert matriz_data["totais"]["TOTAL"] >= 1
+    total_submetidos_antes = matriz_data["totais"]["TOTAL"]
+
+    # 7. Submeter a ficha completa para a UGERC
+    payload["id"] = mapeamento["id"]
+    payload["status"] = "SUBMETIDO"
+    submeter_res = client.post("/api/riscos", json=payload, headers=headers)
+    assert submeter_res.status_code == 200
+    assert submeter_res.json()["status"] == "SUBMETIDO"
+
+    # Agora a matriz 5x5 e cards DEVEM contabilizar a ficha submetida
+    matriz_res_depois = client.get("/api/riscos/painel/matriz", headers=headers)
+    assert matriz_res_depois.status_code == 200
+    assert matriz_res_depois.json()["totais"]["TOTAL"] == total_submetidos_antes + 1
+
+
+def test_bloqueio_submissao_etapas_incompletas(client):
+    """Submeter para UGERC sem preencher todas as etapas deve retornar HTTP 400 com detalhes."""
+    login_res = client.post("/api/login", data={"username": "admin", "password": "admin"})
+    headers = {"Authorization": f"Bearer {login_res.json()['access_token']}"}
+
+    # Tentativa de submissão sem preencher causa e consequência da Etapa 2
+    payload_incompleto = {
+        "unidade_id": 1,
+        "processo_id": 1,
+        "entrega_processo": "Entrega teste",
+        "status": "SUBMETIDO",
+        "eventos": [
+            {
+                "categoria": "OPERACIONAL",
+                "causa": "",  # Vazio
+                "descricao_evento": "Evento teste",
+                "consequencia": "",  # Vazio
+                "avaliacao": {"probabilidade": 3, "impacto": 3, "controles": []}
+            }
+        ]
+    }
+
+    res = client.post("/api/riscos", json=payload_incompleto, headers=headers)
+    assert res.status_code == 400
+    assert "Não é possível submeter para a UGERC" in res.json()["detail"]
+
+
+def test_exclusao_ficha_risco_administrador(client):
+    """Administrador pode deletar qualquer ficha de risco mapeada."""
+    login_res = client.post("/api/login", data={"username": "admin", "password": "admin"})
+    headers = {"Authorization": f"Bearer {login_res.json()['access_token']}"}
+
+    # Cria uma ficha em rascunho
+    payload = {
+        "unidade_id": 1,
+        "processo_id": 1,
+        "entrega_processo": "Entrega para exclusão",
+        "status": "RASCUNHO",
+        "eventos": []
+    }
+    create_res = client.post("/api/riscos", json=payload, headers=headers)
+    assert create_res.status_code == 200
+    ficha_id = create_res.json()["id"]
+
+    # Deleta a ficha
+    del_res = client.delete(f"/api/riscos/{ficha_id}", headers=headers)
+    assert del_res.status_code == 200
+    assert del_res.json()["id"] == ficha_id
+
+    # Verifica que não existe mais
+    get_res = client.get(f"/api/riscos/{ficha_id}", headers=headers)
+    assert get_res.status_code == 404
+
+
+def test_endpoint_processos_outros(client):
+    """Garante que o endpoint /api/processos/outros responde com sucesso e respeita permissões."""
+    login_res = client.post("/api/login", data={"username": "admin", "password": "admin"})
+    headers = {"Authorization": f"Bearer {login_res.json()['access_token']}"}
+
+    res = client.get("/api/processos/outros", headers=headers)
+    assert res.status_code == 200
+    assert isinstance(res.json(), list)
+

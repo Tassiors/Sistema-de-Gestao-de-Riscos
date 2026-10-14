@@ -42,11 +42,15 @@ async def run_seed():
             if not obj:
                 obj = UnidadeOrganizacional(
                     nome=u["nome"],
+                    sigla=u.get("sigla"),
                     tipo=u.get("tipo", "UNIDADE"),
                     ativa=True
                 )
                 session.add(obj)
                 await session.flush()
+            else:
+                if u.get("sigla") and obj.sigla != u.get("sigla"):
+                    obj.sigla = u.get("sigla")
             unidades_map[u["nome"]] = obj.id
 
         # 2. Popula Pilares Estratégicos

@@ -87,3 +87,71 @@
     @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none;
   }
 }
+
+/* Regras Globais de Impressão */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 1.2cm 1cm;
+  }
+
+  html, body, #app {
+    background: #ffffff !important;
+    color: #111827 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Oculta barras de rolagem e menus do sistema */
+  aside,
+  header,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Destrava qualquer container com altura fixa ou scroll interno */
+  .overflow-hidden,
+  .overflow-y-auto,
+  .h-screen,
+  .h-full {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  #secao-relatorio-impressao {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .bloco-impressao {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 0.8rem !important;
+  }
+
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}

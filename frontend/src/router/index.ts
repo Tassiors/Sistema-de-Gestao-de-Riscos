@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, NavigationGuardNext } from 'vue-router'
 import { useAuthStore } from '../stores/auth';
 import Login from '../views/Login.vue';
 import PainelRiscos from '../views/riscos/PainelRiscos.vue';
+import RiscosMapeadosView from '../views/riscos/RiscosMapeadosView.vue';
 import MapeamentoWizard from '../views/riscos/MapeamentoWizard.vue';
 import GestaoUsuariosVisibilidade from '../views/admin/GestaoUsuariosVisibilidade.vue';
 
@@ -20,6 +21,12 @@ const routes = [
     path: '/riscos',
     name: 'Painel de Riscos',
     component: PainelRiscos,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/riscos/mapeados',
+    name: 'Riscos Mapeados',
+    component: RiscosMapeadosView,
     meta: { requiresAuth: true },
   },
   {

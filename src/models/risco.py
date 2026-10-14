@@ -78,6 +78,7 @@ class AvaliacaoRisco(Base):
     impacto = Column(Integer, nullable=False, default=1)        # 1 a 5
     risco_inerente = Column(Integer, nullable=False, default=1) # P * I (1 a 25)
     fator_mitigacao = Column(Float, nullable=False, default=1.0) # 1.0, 0.8, 0.6, 0.4, 0.2
+    nivel_controle = Column(String(50), nullable=True, default="INEXISTENTE") # INEXISTENTE, FRACO, MEDIANO, SATISFATORIO, FORTE
     risco_residual = Column(Integer, nullable=False, default=1)  # round(inerente * fator)
     classificacao = Column(String(50), nullable=False, default="BAIXO") # BAIXO, MEDIO, ALTO, EXTREMO
     acima_apetite = Column(Boolean, nullable=False, default=False)       # True se residual > 7.99

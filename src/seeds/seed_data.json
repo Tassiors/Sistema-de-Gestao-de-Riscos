@@ -3,397 +3,476 @@
     {
       "codigo": "0",
       "nome": "Divisão de Administração e Finanças",
-      "tipo": "DIVISAO"
+      "tipo": "DIVISAO",
+      "sigla": "DAF"
     },
     {
       "codigo": "1",
       "nome": "Divisão de Apoio Diagnóstico e Terapêutico",
-      "tipo": "DIVISAO"
+      "tipo": "DIVISAO",
+      "sigla": "DADT"
     },
     {
       "codigo": "2",
       "nome": "Divisão de Enfermagem",
-      "tipo": "DIVISAO"
+      "tipo": "DIVISAO",
+      "sigla": "DENF"
     },
     {
       "codigo": "3",
       "nome": "Divisão de Gestão de Pessoas",
-      "tipo": "DIVISAO"
+      "tipo": "DIVISAO",
+      "sigla": "DIVGP"
     },
     {
       "codigo": "4",
       "nome": "Divisão de Gestão do Cuidado",
-      "tipo": "DIVISAO"
+      "tipo": "DIVISAO",
+      "sigla": "DGC"
     },
     {
       "codigo": "5",
       "nome": "Divisão de Logística e Infraestrutura",
-      "tipo": "DIVISAO"
+      "tipo": "DIVISAO",
+      "sigla": "DLIH"
     },
     {
       "codigo": "6",
       "nome": "Divisão Médica",
-      "tipo": "DIVISAO"
+      "tipo": "DIVISAO",
+      "sigla": "DMED"
     },
     {
       "codigo": "7",
       "nome": "Gerência Administrativa",
-      "tipo": "GERENCIA"
+      "tipo": "GERENCIA",
+      "sigla": "GAD"
     },
     {
       "codigo": "8",
       "nome": "Gerência de Atenção à Saúde",
-      "tipo": "GERENCIA"
+      "tipo": "GERENCIA",
+      "sigla": "GAS"
     },
     {
       "codigo": "9",
       "nome": "Gerência de Ensino e Pesquisa",
-      "tipo": "GERENCIA"
+      "tipo": "GERENCIA",
+      "sigla": "GEP"
     },
     {
       "codigo": "10",
       "nome": "Ouvidoria",
-      "tipo": "ORGAO_INDEPENDENTE"
+      "tipo": "ORGAO_INDEPENDENTE",
+      "sigla": "OUV"
     },
     {
       "codigo": "11",
       "nome": "Setor de Abastecimento Farmacêutico e Suprimentos",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "SAFS"
     },
     {
       "codigo": "12",
       "nome": "Setor de Administração",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "SAD"
     },
     {
       "codigo": "13",
       "nome": "Setor de Apoio Diagnóstico e Terapêutico",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "STDT"
     },
     {
       "codigo": "14",
       "nome": "Setor de Contabilidade",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "SCONT"
     },
     {
       "codigo": "15",
       "nome": "Setor de Contratualização",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "STCOR"
     },
     {
       "codigo": "16",
       "nome": "Setor de Engenharia Clínica",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "STEC"
     },
     {
       "codigo": "17",
       "nome": "Setor de Farmácia Hospitalar",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "SFH"
     },
     {
       "codigo": "18",
       "nome": "Setor de Gestão da Pesquisa e da Inovação Tecnológica em Saúde",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "SGPITS"
     },
     {
       "codigo": "19",
       "nome": "Setor de Gestão da Qualidade",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "STGQ"
     },
     {
       "codigo": "20",
       "nome": "Setor de Gestão do Ensino",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "SEGE"
     },
     {
       "codigo": "21",
       "nome": "Setor de Gestão Orçamentária e Financeira",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "SGOF"
     },
     {
       "codigo": "22",
       "nome": "Setor de Governança e Estratégia",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "SEGOV"
     },
     {
       "codigo": "23",
       "nome": "Setor de Hotelaria Hospitalar",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "STHH"
     },
     {
       "codigo": "24",
       "nome": "Setor de Infraestrutura Física",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "SIF"
     },
     {
       "codigo": "25",
       "nome": "Setor de Tecnologia da Informação e Saúde Digital",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "SETISD"
     },
     {
       "codigo": "26",
       "nome": "Setor do Paciente Crítico",
-      "tipo": "SETOR"
+      "tipo": "SETOR",
+      "sigla": "STPC"
     },
     {
       "codigo": "27",
       "nome": "Superintendência",
-      "tipo": "GERENCIA"
+      "tipo": "GERENCIA",
+      "sigla": "SUP"
     },
     {
       "codigo": "28",
       "nome": "Unidade da Criança e do Adolescente",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UCA"
     },
     {
       "codigo": "29",
       "nome": "Unidade de Administração de Pessoal",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UAP"
     },
     {
       "codigo": "30",
       "nome": "Unidade de Almoxarifado e Controle de Estoques",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UACE"
     },
     {
       "codigo": "31",
       "nome": "Unidade de Ambulatório",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UAMB"
     },
     {
       "codigo": "32",
       "nome": "Unidade de Análises Clínicas e Anatomia Patológica",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UACAP"
     },
     {
       "codigo": "33",
       "nome": "Unidade de Apoio à Gestão em Enfermagem",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UAGENF"
     },
     {
       "codigo": "34",
       "nome": "Unidade de Bloco Cirúrgico e Processamento de Material Esterilizado",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UBCME"
     },
     {
       "codigo": "35",
       "nome": "Unidade de Cabeça e Pescoço",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UCAP"
     },
     {
       "codigo": "36",
       "nome": "Unidade de Clínica Cirúrgica",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UCIR"
     },
     {
       "codigo": "37",
       "nome": "Unidade de Clínica Médica",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UCM"
     },
     {
       "codigo": "38",
       "nome": "Unidade de Compras e Licitações",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UCLIC"
     },
     {
       "codigo": "39",
       "nome": "Unidade de Comunicação Social",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UCS"
     },
     {
       "codigo": "40",
       "nome": "Unidade de Contratos",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UCONT"
     },
     {
       "codigo": "41",
       "nome": "Unidade de Contratualização",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UCON"
     },
     {
       "codigo": "42",
       "nome": "Unidade de Desenvolvimento de Pessoal",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UDP"
     },
     {
       "codigo": "43",
       "nome": "Unidade de Diagnóstico por Imagem",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UDI"
     },
     {
       "codigo": "44",
       "nome": "Unidade de Diagnósticos Especializados",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UDE"
     },
     {
       "codigo": "45",
       "nome": "Unidade de e-Saúde",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UES"
     },
     {
       "codigo": "46",
       "nome": "Unidade de Execução Orçamentária e Financeira",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UEOF"
     },
     {
       "codigo": "47",
       "nome": "Unidade de Farmácia Clínica e Dispensação Farmacêutica",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UFCD"
     },
     {
       "codigo": "48",
       "nome": "Unidade de Fiscalização Administrativa de Contratos",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UFAC"
     },
     {
       "codigo": "49",
       "nome": "Unidade de Gestão da Inovação Tecnológica em Saúde",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UGITS"
     },
     {
       "codigo": "50",
       "nome": "Unidade de Gestão da Pesquisa",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UGPESQ"
     },
     {
       "codigo": "51",
       "nome": "Unidade de Gestão da Qualidade e Segurança do Paciente",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UGQSP"
     },
     {
       "codigo": "52",
       "nome": "Unidade de Gestão de Graduação, Ensino Técnico e Extensão",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UGETE"
     },
     {
       "codigo": "53",
       "nome": "Unidade de Gestão de Pós-Graduação",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UGPOS"
     },
     {
       "codigo": "54",
       "nome": "Unidade de Gestão e Processamento da Informação Assistencial",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UGPIA"
     },
     {
       "codigo": "55",
       "nome": "Unidade de Gestão Estratégica, de Riscos e Controles Internos",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UGERC"
     },
     {
       "codigo": "56",
       "nome": "Unidade de Hematologia, Hemoterapia e Oncologia",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UHHO"
     },
     {
       "codigo": "57",
       "nome": "Unidade de Infraestrutura, Suporte e Segurança da Informação",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UISTI"
     },
     {
       "codigo": "58",
       "nome": "Unidade de Patrimônio",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UPAT"
     },
     {
       "codigo": "59",
       "nome": "Unidade de Planejamento e Dimensionamento de Estoques",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UPDE"
     },
     {
       "codigo": "60",
       "nome": "Unidade de Planejamento e Gestão Orçamentária",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UPGO"
     },
     {
       "codigo": "61",
       "nome": "Unidade de Regulação Interna",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "URI"
     },
     {
       "codigo": "62",
       "nome": "Unidade de Saúde da Mulher",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UMUL"
     },
     {
       "codigo": "63",
       "nome": "Unidade de Saúde Mental",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "USME"
     },
     {
       "codigo": "64",
       "nome": "Unidade de Saúde Ocupacional e Segurança do Trabalho",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "USOST"
     },
     {
       "codigo": "65",
       "nome": "Unidade de Serviços Gerais",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "USG"
     },
     {
       "codigo": "66",
       "nome": "Unidade de Sistema Urinário",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "USUR"
     },
     {
       "codigo": "67",
       "nome": "Unidade de Sistemas de Informação e Inteligência de Dados",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "USID"
     },
     {
       "codigo": "68",
       "nome": "Unidade de Terapia Intensiva Adulto",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UTIAD"
     },
     {
       "codigo": "69",
       "nome": "Unidade de Terapia Intensiva Pediátrica e Neonatal",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UTIPN"
     },
     {
       "codigo": "70",
       "nome": "Unidade de Transplantes",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UTX"
     },
     {
       "codigo": "71",
       "nome": "Unidade de Urgência e Emergência",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UUE"
     },
     {
       "codigo": "72",
       "nome": "Unidade de Vigilância em Saúde",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UVS"
     },
     {
       "codigo": "73",
       "nome": "Unidade do Sistema Cardiovascular",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "USCV"
     },
     {
       "codigo": "74",
       "nome": "Unidade do Sistema Neuro-Músculo-Esquelético",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UNME"
     },
     {
       "codigo": "75",
       "nome": "Unidade Multiprofissional",
-      "tipo": "UNIDADE"
+      "tipo": "UNIDADE",
+      "sigla": "UMULTI"
     },
     {
       "codigo": "76",
       "nome": "Auditoria",
-      "tipo": "ORGAO_INDEPENDENTE"
+      "tipo": "ORGAO_INDEPENDENTE",
+      "sigla": "AUD"
     },
     {
       "codigo": "77",
       "nome": "Colegiado Executivo",
-      "tipo": "ORGAO_INDEPENDENTE"
+      "tipo": "ORGAO_INDEPENDENTE",
+      "sigla": "COLEX"
     },
     {
       "codigo": "78",
       "nome": "Conselho Consultivo",
-      "tipo": "ORGAO_INDEPENDENTE"
+      "tipo": "ORGAO_INDEPENDENTE",
+      "sigla": "CCON"
     }
   ],
   "pilares": [

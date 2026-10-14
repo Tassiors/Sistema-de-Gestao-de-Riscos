@@ -35,8 +35,8 @@
         <span class="text-2xl font-extrabold text-orange-600 mt-1 block">{{ estatisticas.totais?.ALTO || 0 }}</span>
       </div>
       <div class="bg-white p-4 rounded-xl shadow-sm border border-rose-100 text-center col-span-2 md:col-span-1">
-        <span class="text-xs font-semibold text-rose-600 uppercase tracking-wider block">Acima do Apetite</span>
-        <span class="text-2xl font-extrabold text-rose-600 mt-1 block">{{ estatisticas.totais?.ACIMA_APETITE || 0 }}</span>
+        <span class="text-xs font-semibold text-rose-600 uppercase tracking-wider block">Risco Extremo</span>
+        <span class="text-2xl font-extrabold text-rose-600 mt-1 block">{{ estatisticas.totais?.EXTREMO || 0 }}</span>
       </div>
     </div>
 
@@ -46,109 +46,60 @@
         <MatrizRisco5x5 :counts="estatisticas.quadrantes" />
       </div>
 
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
-        <h3 class="text-sm font-bold text-gray-800">Filtros de Visualização</h3>
-        
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4 flex flex-col justify-between">
         <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Unidade Organizacional</label>
-          <select v-model="filtroUnidade" @change="carregarMapeamentos" class="w-full text-xs border-gray-300 rounded-lg p-2 border">
-            <option :value="null">Todas as Unidades Autorizadas</option>
-            <option v-for="u in unidades" :key="u.id" :value="u.id">{{ u.nome }}</option>
-          </select>
+          <h3 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+            <span>🛡️</span>
+            <span>Diretrizes de Governança</span>
+          </h3>
+          <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+            A Matriz 5x5 reflete a distribuição dos riscos mapeados com status <strong>SUBMETIDO</strong> no HC-UFPE.
+          </p>
+
+          <div class="mt-4 p-3.5 bg-blue-50/70 rounded-xl border border-blue-100 text-xs space-y-2">
+            <span class="font-bold text-blue-900 block">Tolerância Institucional</span>
+            <p class="text-[11px] text-blue-800 leading-relaxed">
+              Riscos com resultado residual <strong>superior a 7,99</strong> (Alto ou Extremo) excedem o apetite institucional e exigem obrigatoriamente a elaboração de Planos de Ação 5W2H e Planos de Contingência.
+            </p>
+          </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Status da Tramitação</label>
-          <select v-model="filtroStatus" @change="carregarMapeamentos" class="w-full text-xs border-gray-300 rounded-lg p-2 border">
-            <option :value="null">Todos os Status</option>
-            <option value="RASCUNHO">Rascunho</option>
-            <option value="SUBMETIDO">Submetido para UGERC</option>
-            <option value="EM_MONITORAMENTO">Em Monitoramento</option>
-          </select>
-        </div>
-
-        <div class="pt-2">
-          <button 
-            @click="limparFiltros" 
-            class="w-full py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+        <div class="space-y-2 pt-4 border-t border-gray-100">
+          <router-link 
+            to="/riscos/mapeados" 
+            class="w-full py-2.5 px-3 text-xs font-bold text-center text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition block"
           >
-            Limpar Filtros
-          </button>
+            📋 Ver Todas as Fichas Mapeadas
+          </router-link>
+          <router-link 
+            to="/riscos/novo" 
+            class="w-full py-2.5 px-3 text-xs font-bold text-center text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition block"
+          >
+            + Novo Mapeamento
+          </router-link>
         </div>
       </div>
     </div>
 
-    <!-- Tabela de Mapeamentos -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-        <h3 class="text-sm font-bold text-gray-800">Fichas de Riscos Mapeados ({{ mapeamentos.length }})</h3>
+    <!-- Card / Banner de Atalho para Fichas de Riscos Mapeados -->
+    <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-xl shadow-md p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="space-y-1 text-center md:text-left">
+        <h3 class="text-lg font-bold flex items-center justify-center md:justify-start gap-2">
+          <span>📋</span>
+          <span>Fichas de Riscos Mapeados</span>
+        </h3>
+        <p class="text-xs text-blue-200 max-w-xl leading-relaxed">
+          Acesse a listagem detalhada de todas as fichas cadastradas, com filtros avançados por unidade (busca textual), status de tramitação, permissões de edição e exportação.
+        </p>
       </div>
-
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 text-left text-xs">
-          <thead class="bg-gray-50 text-gray-600 font-semibold uppercase tracking-wider text-[11px]">
-            <tr>
-              <th class="py-3 px-4">Setor / Unidade</th>
-              <th class="py-3 px-4">Processo</th>
-              <th class="py-3 px-4">Evento de Risco</th>
-              <th class="py-3 px-4 text-center">Residual</th>
-              <th class="py-3 px-4 text-center">Severidade</th>
-              <th class="py-3 px-4 text-center">Status</th>
-              <th class="py-3 px-4 text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr v-if="mapeamentos.length === 0">
-              <td colspan="7" class="py-8 text-center text-gray-400">
-                Nenhum mapeamento de risco encontrado para os filtros selecionados.
-              </td>
-            </tr>
-            <tr v-for="m in mapeamentos" :key="m.id" class="hover:bg-gray-50 transition">
-              <td class="py-3.5 px-4 font-medium text-gray-900 max-w-xs truncate">
-                {{ m.unidade?.nome }}
-              </td>
-              <td class="py-3.5 px-4 text-gray-600 max-w-xs truncate">
-                <span class="block truncate">{{ m.processo?.nome }}</span>
-                <span v-if="m.possui_projeto" class="text-[10px] text-blue-600 font-semibold block">Projeto: {{ m.nome_projeto }}</span>
-              </td>
-              <td class="py-3.5 px-4 text-gray-700 max-w-md truncate">
-                <span v-if="m.eventos && m.eventos.length > 0">
-                  {{ m.eventos[0].descricao_evento }}
-                </span>
-                <span v-else class="text-gray-400 italic">Sem eventos cadastrados</span>
-              </td>
-              <td class="py-3.5 px-4 text-center font-bold text-gray-900">
-                {{ m.eventos && m.eventos[0]?.avaliacao ? m.eventos[0].avaliacao.risco_residual : '-' }}
-              </td>
-              <td class="py-3.5 px-4 text-center">
-                <span 
-                  v-if="m.eventos && m.eventos[0]?.avaliacao"
-                  :class="getClassificacaoBadge(m.eventos[0].avaliacao.classificacao)"
-                  class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase"
-                >
-                  {{ m.eventos[0].avaliacao.classificacao }}
-                </span>
-                <span v-else>-</span>
-              </td>
-              <td class="py-3.5 px-4 text-center">
-                <span 
-                  :class="m.status === 'RASCUNHO' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'"
-                  class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase"
-                >
-                  {{ m.status }}
-                </span>
-              </td>
-              <td class="py-3.5 px-4 text-right space-x-2">
-                <router-link 
-                  :to="'/riscos/' + m.id + '/editar'"
-                  class="text-blue-600 hover:text-blue-800 font-semibold"
-                >
-                  Editar
-                </router-link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div>
+        <router-link 
+          to="/riscos/mapeados" 
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-blue-900 hover:bg-blue-50 text-xs font-bold rounded-lg shadow transition"
+        >
+          <span>Abrir Riscos Mapeados</span>
+          <span>→</span>
+        </router-link>
       </div>
     </div>
   </div>
@@ -159,21 +110,7 @@ import { ref, onMounted } from 'vue';
 import api from '../../services/api';
 import MatrizRisco5x5 from '../../components/riscos/MatrizRisco5x5.vue';
 
-const mapeamentos = ref<any[]>([]);
-const unidades = ref<any[]>([]);
 const estatisticas = ref<any>({ quadrantes: {}, totais: {} });
-
-const filtroUnidade = ref<number | null>(null);
-const filtroStatus = ref<string | null>(null);
-
-function getClassificacaoBadge(classif: string) {
-  switch (classif) {
-    case 'BAIXO': return 'bg-emerald-100 text-emerald-800';
-    case 'MEDIO': return 'bg-amber-100 text-amber-800';
-    case 'ALTO': return 'bg-orange-100 text-orange-800';
-    default: return 'bg-rose-100 text-rose-800';
-  }
-}
 
 async function carregarEstatisticas() {
   try {
@@ -184,38 +121,7 @@ async function carregarEstatisticas() {
   }
 }
 
-async function carregarMapeamentos() {
-  try {
-    const params: any = {};
-    if (filtroUnidade.value) params.unidade_id = filtroUnidade.value;
-    if (filtroStatus.value) params.status = filtroStatus.value;
-    const res = await api.get('/api/riscos', { params });
-    mapeamentos.value = res.data;
-  } catch (err) {
-    console.error('Erro ao carregar mapeamentos:', err);
-  }
-}
-
-async function carregarUnidades() {
-  try {
-    const res = await api.get('/api/unidades');
-    unidades.value = res.data;
-  } catch (err) {
-    console.error('Erro ao carregar unidades:', err);
-  }
-}
-
-function limparFiltros() {
-  filtroUnidade.value = null;
-  filtroStatus.value = null;
-  carregarMapeamentos();
-}
-
 onMounted(async () => {
-  await Promise.all([
-    carregarEstatisticas(),
-    carregarMapeamentos(),
-    carregarUnidades()
-  ]);
+  await carregarEstatisticas();
 });
 </script>

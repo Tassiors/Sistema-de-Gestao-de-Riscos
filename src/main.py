@@ -26,6 +26,11 @@ async def lifespan(app: FastAPI):
     # Create tables for App DB (if they don't exist) - for development only, Alembic handles this in production
     async with app.state.app_db.engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        try:
+            from sqlalchemy import text
+            await conn.execute(text("ALTER TABLE avaliacoes_risco ADD COLUMN nivel_controle VARCHAR(50) DEFAULT 'INEXISTENTE'"))
+        except Exception:
+            pass
     print("App SQLite tables checked/created.")
 
     yield

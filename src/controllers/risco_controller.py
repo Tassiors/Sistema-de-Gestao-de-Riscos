@@ -26,26 +26,88 @@ from ..models.processo import Processo, Macroprocesso, PilarEstrategico
 from ..helpers.audit_helper import registrar_auditoria
 
 
-def calcular_severidade_risco(probabilidade: int, impacto: int, num_controles: int) -> Dict[str, Any]:
+TABELA_CONTROLES_INTERNOS = {
+    "INEXISTENTE": {
+        "fnc": 1.0,
+        "classificacao_tcu": "Muito Alto",
+        "rotulo": "Inexistente",
+        "definicao": "Controles inexistentes, mal desenhados ou mal implementados, isto é, não funcionais."
+    },
+    "FRACO": {
+        "fnc": 0.8,
+        "classificacao_tcu": "Alto",
+        "rotulo": "Fraco",
+        "definicao": "Controles têm abordagens ad hoc, tendem a ser aplicados caso a caso, a responsabilidade é individual, havendo elevado grau de confiança no conhecimento das pessoas."
+    },
+    "MEDIANO": {
+        "fnc": 0.6,
+        "classificacao_tcu": "Médio",
+        "rotulo": "Mediano",
+        "definicao": "Controles implementados mitigam alguns aspectos do risco, mas não contemplam todos os aspectos relevantes do risco devido a deficiências no desenho ou nas ferramentas utilizadas."
+    },
+    "SATISFATORIO": {
+        "fnc": 0.4,
+        "classificacao_tcu": "Baixo",
+        "rotulo": "Satisfatório",
+        "definicao": "Controles implementados e sustentados por ferramentas adequadas e, embora passíveis de aperfeiçoamento, mitigam o risco satisfatoriamente."
+    },
+    "FORTE": {
+        "fnc": 0.2,
+        "classificacao_tcu": "Muito Baixo",
+        "rotulo": "Forte",
+        "definicao": "Controles implementados podem ser considerados a 'melhor prática', mitigando todos os aspectos relevantes do risco."
+    }
+}
+
+
+def calcular_severidade_risco(
+    probabilidade: int,
+    impacto: int,
+    nivel_controle: Optional[str] = "INEXISTENTE",
+    fator_mitigacao: Optional[float] = None,
+    num_controles: int = 0
+) -> Dict[str, Any]:
     """
-    Motor oficial de cálculo do Risco Inerente e Risco Residual (Guia UGERC.001 / REDCap).
+    Motor oficial de cálculo do Risco Inerente e Risco Residual (Guia UGERC.001 / Tabela 3).
+    O Fator Numérico do Controle (FNC) é determinado exclusivamente pelo nível selecionado:
+    - INEXISTENTE: 1.0 (Muito Alto)
+    - FRACO: 0.8 (Alto)
+    - MEDIANO: 0.6 (Médio)
+    - SATISFATORIO: 0.4 (Baixo)
+    - FORTE: 0.2 (Muito Baixo)
+    O número de medidas de controle descritas NÃO altera o FNC.
     """
-    p = max(1, min(5, probabilidade))
-    i = max(1, min(5, impacto))
+    p = max(1, min(5, probabilidade)) if probabilidade else 1
+    i = max(1, min(5, impacto)) if impacto else 1
     inerente = p * i
 
-    # Fator de Mitigação pelos controles existentes:
-    # 0 -> 1.0; 1 -> 0.8; 2 -> 0.6; 3 -> 0.4; 4+ -> 0.2
-    if num_controles <= 0:
-        fator = 1.0
-    elif num_controles == 1:
-        fator = 0.8
-    elif num_controles == 2:
-        fator = 0.6
-    elif num_controles == 3:
-        fator = 0.4
+    nivel = (nivel_controle or "").strip().upper()
+    if nivel in TABELA_CONTROLES_INTERNOS:
+        fator = TABELA_CONTROLES_INTERNOS[nivel]["fnc"]
+    elif fator_mitigacao is not None:
+        fator = float(fator_mitigacao)
+        nivel = "INEXISTENTE"
+        for k, v in TABELA_CONTROLES_INTERNOS.items():
+            if abs(v["fnc"] - fator) < 0.05:
+                nivel = k
+                break
     else:
-        fator = 0.2
+        # Fallback de compatibilidade se informado apenas num_controles
+        if num_controles <= 0:
+            nivel = "INEXISTENTE"
+            fator = 1.0
+        elif num_controles == 1:
+            nivel = "FRACO"
+            fator = 0.8
+        elif num_controles == 2:
+            nivel = "MEDIANO"
+            fator = 0.6
+        elif num_controles == 3:
+            nivel = "SATISFATORIO"
+            fator = 0.4
+        else:
+            nivel = "FORTE"
+            fator = 0.2
 
     residual = round(inerente * fator)
 
@@ -68,11 +130,13 @@ def calcular_severidade_risco(probabilidade: int, impacto: int, num_controles: i
         "probabilidade": p,
         "impacto": i,
         "risco_inerente": inerente,
+        "nivel_controle": nivel,
         "fator_mitigacao": fator,
         "risco_residual": residual,
         "classificacao": classificacao,
         "acima_apetite": acima_apetite
     }
+
 
 
 async def obter_unidades_autorizadas(db: AsyncSession, current_user: Dict[str, Any]) -> Optional[List[int]]:
@@ -106,14 +170,124 @@ async def obter_unidades_autorizadas(db: AsyncSession, current_user: Dict[str, A
     return list(unidades_permitidas)
 
 
+def validar_todas_etapas_submissao(dados: Dict[str, Any]):
+    """
+    Valida rigorosamente se todas as 5 etapas da metodologia UGERC estão devidamente preenchidas
+    antes de permitir tramitar para o status SUBMETIDO.
+    """
+    erros = []
+
+    # Etapa 1: Contexto e Processo
+    if not dados.get("unidade_id"):
+        erros.append("Etapa 1: Unidade Organizacional é obrigatória.")
+    if not dados.get("processo_id"):
+        erros.append("Etapa 1: Processo hospitalar é obrigatório.")
+    if not str(dados.get("entrega_processo", "")).strip():
+        erros.append("Etapa 1: Entrega do Processo / Produto Entregue é obrigatória.")
+    if dados.get("possui_projeto"):
+        if not str(dados.get("nome_projeto", "")).strip():
+            erros.append("Etapa 1: Nome do Projeto é obrigatório quando 'Possui Projeto' está ativado.")
+        if not dados.get("pilar_estrategico_id"):
+            erros.append("Etapa 1: Pilar do Mapa Estratégico é obrigatório quando 'Possui Projeto' está ativado.")
+
+    # Etapa 2: Identificação do Risco
+    eventos = dados.get("eventos", [])
+    if not eventos:
+        erros.append("Etapa 2: É necessário cadastrar ao menos um Evento de Risco.")
+    else:
+        for idx, ev in enumerate(eventos, start=1):
+            if not str(ev.get("categoria", "")).strip():
+                erros.append(f"Etapa 2: Categoria do Risco do evento #{idx} é obrigatória.")
+            if not str(ev.get("causa", "")).strip():
+                erros.append(f"Etapa 2: Causa do evento #{idx} é obrigatória.")
+            if not str(ev.get("descricao_evento", "")).strip():
+                erros.append(f"Etapa 2: Descrição do Evento de Risco #{idx} é obrigatória.")
+            if not str(ev.get("consequencia", "")).strip():
+                erros.append(f"Etapa 2: Consequência do evento #{idx} é obrigatória.")
+
+            # Etapa 3: Avaliação e Controles
+            av = ev.get("avaliacao", {})
+            prob = int(av.get("probabilidade", 0) or 0)
+            imp = int(av.get("impacto", 0) or 0)
+            if prob < 1 or prob > 5:
+                erros.append(f"Etapa 3: Probabilidade do evento #{idx} deve ser entre 1 e 5.")
+            if imp < 1 or imp > 5:
+                erros.append(f"Etapa 3: Impacto do evento #{idx} deve ser entre 1 e 5.")
+
+            nivel_c = str(av.get("nivel_controle", "INEXISTENTE")).strip().upper()
+            if nivel_c not in TABELA_CONTROLES_INTERNOS:
+                erros.append(f"Etapa 3: Nível de controles internos do evento #{idx} é inválido.")
+
+            controles = av.get("controles", [])
+            if nivel_c != "INEXISTENTE":
+                if not controles:
+                    erros.append(f"Etapa 3: Como o nível de controle selecionado é '{nivel_c}', é obrigatório cadastrar ao menos uma medida de controle existente no evento #{idx}.")
+                for c_idx, c in enumerate(controles, start=1):
+                    c_desc = c if isinstance(c, str) else c.get("descricao_controle", "")
+                    if not str(c_desc).strip():
+                        erros.append(f"Etapa 3: A descrição do controle #{c_idx} do evento #{idx} não pode ficar em branco.")
+
+            # Etapa 4 e 5: Severidade e Respostas aos Riscos
+            calc = calcular_severidade_risco(prob, imp, nivel_controle=nivel_c, fator_mitigacao=av.get("fator_mitigacao"))
+            if calc["classificacao"] in ("ALTO", "EXTREMO"):
+                planos_acao = ev.get("planos_acao", [])
+                if not planos_acao:
+                    erros.append(f"Etapa 5: Risco classificado como {calc['classificacao']} ({calc['risco_residual']}). É obrigatório registrar ao menos um Plano de Ação 5W2H para o evento #{idx}.")
+
+            # Valida preenchimento dos planos de ação existentes
+            for pa_idx, pa in enumerate(ev.get("planos_acao", []), start=1):
+                if not str(pa.get("o_que", "")).strip():
+                    erros.append(f"Etapa 5: O que fazer (What) do Plano de Ação #{pa_idx} é obrigatório.")
+                if not str(pa.get("como", "")).strip():
+                    erros.append(f"Etapa 5: Como fazer (How) do Plano de Ação #{pa_idx} é obrigatório.")
+                if not str(pa.get("quem", "")).strip():
+                    erros.append(f"Etapa 5: Quem (Responsável) do Plano de Ação #{pa_idx} é obrigatório.")
+                if not str(pa.get("data_inicio", "")).strip() or not str(pa.get("data_termino", "")).strip():
+                    erros.append(f"Etapa 5: Período (Início e Término) do Plano de Ação #{pa_idx} é obrigatório.")
+
+            # Valida preenchimento dos planos de contingência existentes
+            for pc_idx, pc in enumerate(ev.get("planos_contingencia", []), start=1):
+                if not str(pc.get("gatilho", "")).strip():
+                    erros.append(f"Etapa 5: Gatilho do Plano de Contingência #{pc_idx} é obrigatório.")
+                if not str(pc.get("responsavel", "")).strip():
+                    erros.append(f"Etapa 5: Responsável pela ativação do Plano de Contingência #{pc_idx} é obrigatório.")
+                if not str(pc.get("o_que", "")).strip():
+                    erros.append(f"Etapa 5: O que fazer do Plano de Contingência #{pc_idx} é obrigatório.")
+                if not str(pc.get("como", "")).strip():
+                    erros.append(f"Etapa 5: Como fazer do Plano de Contingência #{pc_idx} é obrigatório.")
+
+    if erros:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Não é possível submeter para a UGERC pois há pendências: " + "; ".join(erros)
+        )
+
+
 async def listar_mapeamentos(
     db: AsyncSession,
     current_user: Dict[str, Any],
     unidade_id: Optional[int] = None,
     status_filtro: Optional[str] = None
 ) -> List[Dict[str, Any]]:
-    """Lista mapeamentos de risco respeitando o controle de visibilidade setorial."""
+    """Lista mapeamentos de risco respeitando o controle de visibilidade setorial e regras de exclusão."""
     unidades_autorizadas = await obter_unidades_autorizadas(db, current_user)
+
+    username = current_user.get("username", "")
+    perfil = current_user.get("perfil", "")
+    groups = current_user.get("groups", [])
+    is_admin = (perfil == "ADMINISTRADOR" or "GLO-SEC-HCPE-SETISD" in groups or username in ["admin", "tassio.silva", "renata.albuquerque.1"])
+
+    stmt_u = select(Usuario).where(Usuario.username == username)
+    res_u = await db.execute(stmt_u)
+    u_obj = res_u.scalar_one_or_none()
+    if u_obj and u_obj.perfil == "ADMINISTRADOR":
+        is_admin = True
+
+    subunidades_usuario = set()
+    if u_obj and u_obj.unidade_principal_id:
+        from .processo_controller import obter_subunidades_recursivas
+        sub_ids = await obter_subunidades_recursivas(db, u_obj.unidade_principal_id)
+        subunidades_usuario = set(sub_ids)
 
     stmt = (
         select(MapeamentoRisco)
@@ -144,6 +318,25 @@ async def listar_mapeamentos(
 
     retorno = []
     for m in mapeamentos:
+        # Regra de visibilidade para processos cadastrados na categoria 'Outro':
+        # Visíveis apenas para o setor onde foi criado e instâncias hierárquicas superiores (ancestrais).
+        if m.processo_outro and not is_admin:
+            if m.unidade_id not in subunidades_usuario:
+                continue
+
+        # Regra de permissão de edição e exclusão:
+        # Administradores podem editar e deletar quaisquer fichas;
+        # Gestores podem editar e deletar apenas fichas da sua própria unidade (setor principal);
+        # Instâncias superiores não podem editar ou deletar fichas de unidades inferiores, apenas visualizá-las.
+        pode_editar = False
+        pode_excluir = False
+        if is_admin:
+            pode_editar = True
+            pode_excluir = True
+        elif u_obj and u_obj.perfil == "GESTOR_UNIDADE" and u_obj.unidade_principal_id == m.unidade_id:
+            pode_editar = True
+            pode_excluir = True
+
         ev_data = []
         for ev in m.eventos:
             av = ev.avaliacao
@@ -179,6 +372,8 @@ async def listar_mapeamentos(
             "status": m.status,
             "observacoes_ugerc": m.observacoes_ugerc,
             "eventos": ev_data,
+            "pode_editar": pode_editar,
+            "pode_excluir": pode_excluir,
             "atualizado_em": m.atualizado_em.isoformat() if m.atualizado_em else None
         })
 
@@ -227,6 +422,7 @@ async def obter_mapeamento_por_id(
                 "probabilidade": av.probabilidade,
                 "impacto": av.impacto,
                 "risco_inerente": av.risco_inerente,
+                "nivel_controle": getattr(av, "nivel_controle", None) or ("INEXISTENTE" if av.fator_mitigacao == 1.0 else "FRACO" if av.fator_mitigacao == 0.8 else "MEDIANO" if av.fator_mitigacao == 0.6 else "SATISFATORIO" if av.fator_mitigacao == 0.4 else "FORTE"),
                 "fator_mitigacao": av.fator_mitigacao,
                 "risco_residual": av.risco_residual,
                 "classificacao": av.classificacao,
@@ -258,6 +454,26 @@ async def obter_mapeamento_por_id(
             ]
         })
 
+    username = current_user.get("username", "")
+    perfil = current_user.get("perfil", "")
+    groups = current_user.get("groups", [])
+    is_admin = (perfil == "ADMINISTRADOR" or "GLO-SEC-HCPE-SETISD" in groups or username in ["admin", "tassio.silva", "renata.albuquerque.1"])
+
+    stmt_u = select(Usuario).where(Usuario.username == username)
+    res_u = await db.execute(stmt_u)
+    u_obj = res_u.scalar_one_or_none()
+    if u_obj and u_obj.perfil == "ADMINISTRADOR":
+        is_admin = True
+
+    pode_editar = False
+    pode_excluir = False
+    if is_admin:
+        pode_editar = True
+        pode_excluir = True
+    elif u_obj and u_obj.perfil == "GESTOR_UNIDADE" and u_obj.unidade_principal_id == m.unidade_id:
+        pode_editar = True
+        pode_excluir = True
+
     return {
         "id": m.id,
         "unidade_id": m.unidade_id,
@@ -274,6 +490,8 @@ async def obter_mapeamento_por_id(
         "status": m.status,
         "observacoes_ugerc": m.observacoes_ugerc,
         "eventos": eventos_detalhados,
+        "pode_editar": pode_editar,
+        "pode_excluir": pode_excluir,
         "criado_em": m.criado_em.isoformat() if m.criado_em else None,
         "atualizado_em": m.atualizado_em.isoformat() if m.atualizado_em else None
     }
@@ -294,6 +512,21 @@ async def salvar_mapeamento(
     if unidades_autorizadas is not None and unidade_id not in unidades_autorizadas:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Você não tem permissão para registrar riscos nesta unidade")
 
+    # Validação obrigatória de todas as 5 etapas caso a ação seja SUBMETER para a UGERC
+    if dados.get("status") == "SUBMETIDO":
+        validar_todas_etapas_submissao(dados)
+
+    username = current_user.get("username", "")
+    perfil = current_user.get("perfil", "")
+    groups = current_user.get("groups", [])
+    is_admin = (perfil == "ADMINISTRADOR" or "GLO-SEC-HCPE-SETISD" in groups or username in ["admin", "tassio.silva", "renata.albuquerque.1"])
+
+    stmt_u = select(Usuario).where(Usuario.username == username)
+    res_u = await db.execute(stmt_u)
+    u_obj = res_u.scalar_one_or_none()
+    if u_obj and u_obj.perfil == "ADMINISTRADOR":
+        is_admin = True
+
     mapeamento_id = dados.get("id")
     novo = False
 
@@ -307,6 +540,18 @@ async def salvar_mapeamento(
         m = res.scalar_one_or_none()
         if not m:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mapeamento não encontrado para edição")
+
+        # Regra de edição:
+        # Administradores podem editar quaisquer fichas.
+        # Gestores podem editar apenas fichas de sua própria unidade principal.
+        # Instâncias superiores não podem editar fichas de unidades inferiores, apenas visualizá-las.
+        if not is_admin:
+            if not u_obj or u_obj.perfil != "GESTOR_UNIDADE" or u_obj.unidade_principal_id != m.unidade_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Apenas gestores da própria unidade podem editar fichas de riscos da sua unidade. Chefias de instâncias superiores possuem permissão apenas para visualização."
+                )
+
         m.unidade_id = unidade_id
         m.processo_id = dados.get("processo_id")
         m.processo_outro = dados.get("processo_outro")
@@ -318,6 +563,13 @@ async def salvar_mapeamento(
         m.atualizado_em = datetime.now(timezone.utc)
     else:
         novo = True
+        if not is_admin:
+            if not u_obj or u_obj.perfil != "GESTOR_UNIDADE" or u_obj.unidade_principal_id != unidade_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Você só pode cadastrar novos mapeamentos de risco para a sua própria unidade organizacional."
+                )
+
         m = MapeamentoRisco(
             unidade_id=unidade_id,
             processo_id=dados.get("processo_id"),
@@ -355,18 +607,20 @@ async def salvar_mapeamento(
 
             # Avaliação numérica
             av_data = ev_data.get("avaliacao", {})
-            prob = int(av_data.get("probabilidade", 1))
-            imp = int(av_data.get("impacto", 1))
-            controles_list = av_data.get("controles", [])
-            num_controles = len(controles_list)
+            prob = int(av_data.get("probabilidade", 1) or 1)
+            imp = int(av_data.get("impacto", 1) or 1)
+            nivel_c = str(av_data.get("nivel_controle", "INEXISTENTE")).strip().upper()
+            fator_in = av_data.get("fator_mitigacao")
+            controles_list = av_data.get("controles", []) if nivel_c != "INEXISTENTE" else []
 
-            calculos = calcular_severidade_risco(prob, imp, num_controles)
+            calculos = calcular_severidade_risco(prob, imp, nivel_controle=nivel_c, fator_mitigacao=fator_in)
 
             av = AvaliacaoRisco(
                 evento_risco_id=ev.id,
                 probabilidade=calculos["probabilidade"],
                 impacto=calculos["impacto"],
                 risco_inerente=calculos["risco_inerente"],
+                nivel_controle=calculos["nivel_controle"],
                 fator_mitigacao=calculos["fator_mitigacao"],
                 risco_residual=calculos["risco_residual"],
                 classificacao=calculos["classificacao"],
@@ -375,12 +629,14 @@ async def salvar_mapeamento(
             db.add(av)
             await db.flush()
 
-            # Controles
-            for c_desc in controles_list:
-                desc_str = c_desc if isinstance(c_desc, str) else c_desc.get("descricao_controle", "")
-                if desc_str.strip():
-                    ctrl = ControleExistente(avaliacao_id=av.id, descricao_controle=desc_str.strip())
-                    db.add(ctrl)
+            # Controles (apenas se nível não for Inexistente)
+            if nivel_c != "INEXISTENTE":
+                for c_desc in controles_list:
+                    desc_str = c_desc if isinstance(c_desc, str) else c_desc.get("descricao_controle", "")
+                    if desc_str.strip():
+                        ctrl = ControleExistente(avaliacao_id=av.id, descricao_controle=desc_str.strip())
+                        db.add(ctrl)
+
 
             # Planos de Ação 5W2H
             for pa in ev_data.get("planos_acao", []):
@@ -422,17 +678,94 @@ async def salvar_mapeamento(
     return await obter_mapeamento_por_id(db, m.id, current_user)
 
 
+async def excluir_mapeamento(
+    db: AsyncSession,
+    mapeamento_id: int,
+    current_user: Dict[str, Any],
+    ip_origem: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Exclui um mapeamento de risco do sistema com validação rigorosa de permissão:
+    - Administradores podem deletar quaisquer fichas de riscos mapeados.
+    - Para os demais casos, apenas gestores podem deletar fichas de riscos mapeados da sua unidade.
+    - Chefias de instâncias superiores não poderão deletar fichas de unidades vinculadas.
+    """
+    username = current_user.get("username", "")
+    perfil = current_user.get("perfil", "")
+    groups = current_user.get("groups", [])
+    is_admin = (perfil == "ADMINISTRADOR" or "GLO-SEC-HCPE-SETISD" in groups or username in ["admin", "tassio.silva", "renata.albuquerque.1"])
+
+    stmt = (
+        select(MapeamentoRisco)
+        .options(
+            selectinload(MapeamentoRisco.unidade),
+            selectinload(MapeamentoRisco.processo),
+            selectinload(MapeamentoRisco.eventos)
+        )
+        .where(MapeamentoRisco.id == mapeamento_id)
+    )
+    res = await db.execute(stmt)
+    m = res.scalar_one_or_none()
+    if not m:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mapeamento de risco não encontrado.")
+
+    # Consulta perfil e unidade principal atual do usuário no banco
+    stmt_u = select(Usuario).where(Usuario.username == username)
+    res_u = await db.execute(stmt_u)
+    u_obj = res_u.scalar_one_or_none()
+    if u_obj and u_obj.perfil == "ADMINISTRADOR":
+        is_admin = True
+
+    if not is_admin:
+        # Apenas gestores da própria unidade podem deletar fichas de riscos da sua unidade.
+        if not u_obj or u_obj.perfil != "GESTOR_UNIDADE" or u_obj.unidade_principal_id != m.unidade_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Apenas gestores da própria unidade podem deletar fichas de riscos mapeados da sua unidade. Chefias de instâncias superiores ou vinculadas não possuem permissão para deletar."
+            )
+
+    dados_anteriores = {
+        "id": m.id,
+        "unidade_id": m.unidade_id,
+        "unidade_nome": m.unidade.nome if m.unidade else None,
+        "processo_id": m.processo_id,
+        "processo_nome": m.processo.nome if m.processo else None,
+        "processo_outro": m.processo_outro,
+        "status": m.status
+    }
+
+    await registrar_auditoria(
+        db=db,
+        usuario=username or "sistema",
+        categoria="NEGOCIO_CLINICO",
+        acao="EXCLUIR_MAPEAMENTO_RISCO",
+        recurso=f"mapeamento_risco:{m.id}",
+        dados_anteriores=dados_anteriores,
+        dados_novos=None,
+        ip_origem=ip_origem
+    )
+
+    await db.delete(m)
+    await db.commit()
+
+    return {"message": "Ficha de risco excluída com sucesso.", "id": mapeamento_id}
+
+
 async def obter_estatisticas_matriz(
     db: AsyncSession,
     current_user: Dict[str, Any]
 ) -> Dict[str, Any]:
-    """Retorna dados agregados para preenchimento dos quadrantes da matriz 5x5."""
+    """
+    Retorna dados agregados para preenchimento dos quadrantes da matriz 5x5 e cards.
+    Regra: Considera APENAS fichas de riscos com status SUBMETIDO.
+    """
     unidades_autorizadas = await obter_unidades_autorizadas(db, current_user)
 
     stmt = (
         select(AvaliacaoRisco.probabilidade, AvaliacaoRisco.impacto, AvaliacaoRisco.classificacao, func.count(AvaliacaoRisco.id))
         .join(EventoRisco, AvaliacaoRisco.evento_risco_id == EventoRisco.id)
         .join(MapeamentoRisco, EventoRisco.mapeamento_id == MapeamentoRisco.id)
+        .where(MapeamentoRisco.status == "SUBMETIDO")
     )
 
     if unidades_autorizadas is not None:
@@ -457,3 +790,4 @@ async def obter_estatisticas_matriz(
         "quadrantes": quadrantes,
         "totais": totais
     }
+

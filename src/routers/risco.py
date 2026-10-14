@@ -90,3 +90,26 @@ async def salvar_mapeamento_risco(
         current_user=current_user,
         ip_origem=ip_origem
     )
+
+
+@router.delete("/{id}", response_model=Dict[str, Any])
+async def deletar_mapeamento_risco(
+    id: int,
+    request: Request,
+    db: AsyncSession = Depends(get_app_db_session),
+    current_user: Dict[str, Any] = Depends(auth_handler.decode_token)
+):
+    """
+    Deleta uma ficha de risco do sistema.
+    - Administradores podem deletar quaisquer fichas.
+    - Gestores podem deletar apenas fichas da sua própria unidade.
+    - Chefias de instâncias superiores não poderão deletar fichas de unidades vinculadas.
+    """
+    ip_origem = request.client.host if request.client else None
+    return await risco_controller.excluir_mapeamento(
+        db=db,
+        mapeamento_id=id,
+        current_user=current_user,
+        ip_origem=ip_origem
+    )
+

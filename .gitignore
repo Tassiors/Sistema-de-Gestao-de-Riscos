@@ -96,6 +96,7 @@ server.log
 # Frontend (Node.js)
 node_modules/
 frontend/dist/
+*.timestamp-*.mjs
 
 # Arquivos de configuração local do frontend
 .env.local

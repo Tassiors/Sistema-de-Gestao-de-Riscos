@@ -44,3 +44,21 @@ async def listar_pilares_estrategicos(db: AsyncSession = Depends(get_app_db_sess
     """Retorna os 5 pilares do Mapa Estratégico do HC-UFPE."""
     return await processo_controller.listar_pilares_estrategicos(db=db)
 
+
+@router.get("/outros", response_model=List[Dict[str, Any]])
+async def listar_processos_categoria_outro(
+    unidade_id: Optional[int] = Query(None, description="Filtrar por unidade organizacional"),
+    db: AsyncSession = Depends(get_app_db_session),
+    current_user: Dict[str, Any] = Depends(auth_handler.decode_token)
+):
+    """
+    Retorna processos customizados criados na categoria 'Outro' visíveis para a unidade
+    e instâncias hierárquicas superiores (ancestrais).
+    """
+    return await processo_controller.listar_processos_outro(
+        db=db,
+        current_user=current_user,
+        unidade_id=unidade_id
+    )
+
+

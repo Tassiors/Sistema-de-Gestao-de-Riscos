@@ -1,7 +1,7 @@
 <template>
-  <div class="relative h-screen overflow-hidden md:flex">
+  <div class="relative h-screen overflow-hidden md:flex print:h-auto print:overflow-visible print:block">
     <!-- Mobile Menu Header -->
-    <div class="bg-paper-sidebar text-gray-100 flex justify-between md:hidden shrink-0">
+    <div class="bg-paper-sidebar text-gray-100 flex justify-between md:hidden shrink-0 print:hidden">
       <router-link to="/riscos" class="block p-4 text-white font-bold">{{ SYSTEM_TITLE }}</router-link>
       <button @click="sidebarOpen = !sidebarOpen" class="p-4 focus:outline-none focus:bg-paper-active-link">
         <Bars3Icon class="h-6 w-6" />
@@ -14,7 +14,7 @@
         sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         isCollapsed ? 'md:w-20' : 'md:w-64'
       ]" 
-      class="bg-paper-sidebar text-gray-100 pt-7 pb-2 px-2 absolute inset-y-0 left-0 transform md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-20 h-full shrink-0 flex flex-col justify-between"
+      class="bg-paper-sidebar text-gray-100 pt-7 pb-2 px-2 absolute inset-y-0 left-0 transform md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-20 h-full shrink-0 flex flex-col justify-between print:hidden"
     >
       <div>
         <!-- Clique em "Nome do Sistema" recolhe/expande a barra lateral -->
@@ -44,6 +44,17 @@
           >
             <ShieldExclamationIcon class="h-6 w-6 shrink-0 text-amber-300" />
             <span v-if="!isCollapsed" class="truncate font-medium">Painel de Riscos</span>
+          </router-link>
+
+          <router-link 
+            v-if="authStore.isAuthenticated" 
+            to="/riscos/mapeados" 
+            :title="isCollapsed ? 'Riscos Mapeados' : ''"
+            :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
+            class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
+          >
+            <ClipboardDocumentListIcon class="h-6 w-6 shrink-0 text-cyan-300" />
+            <span v-if="!isCollapsed" class="truncate font-medium">Riscos Mapeados</span>
           </router-link>
 
           <router-link 
@@ -81,8 +92,8 @@
     </aside>
 
     <!-- Content -->
-    <div class="flex-1 flex flex-col bg-paper-bg overflow-y-auto h-full">
-      <header class="flex justify-between items-center p-6 bg-white/80 backdrop-blur-md border-b border-gray-300 sticky top-0 z-10">
+    <div class="flex-1 flex flex-col bg-paper-bg overflow-y-auto h-full print:h-auto print:overflow-visible print:bg-white print:block">
+      <header class="flex justify-between items-center p-6 bg-white/80 backdrop-blur-md border-b border-gray-300 sticky top-0 z-10 print:hidden">
         <div>
           <h1 class="text-2xl font-semibold text-paper-text">{{ $route.name }}</h1>
         </div>
@@ -98,8 +109,8 @@
           <ProfileDropdown v-else />
         </div>
       </header>
-      <main class="flex-1">
-        <div class="container py-4 md:py-6">
+      <main class="flex-1 print:p-0 print:m-0 print:block">
+        <div class="container py-4 md:py-6 print:p-0 print:m-0 print:max-w-none print:w-full">
           <router-view />
         </div>
       </main>
@@ -115,6 +126,7 @@ import {
   Bars3Icon,
   ArrowRightOnRectangleIcon,
   ShieldExclamationIcon,
+  ClipboardDocumentListIcon,
   PlusCircleIcon,
   UsersIcon,
 } from '@heroicons/vue/24/outline';

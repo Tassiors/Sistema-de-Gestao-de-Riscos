@@ -5,13 +5,16 @@ Implementa a resolução hierárquica onde Setores, Divisões e Gerências herda
 os processos de suas subunidades, e todas as unidades recebem os Processos Comuns.
 """
 
+import re
 from typing import List, Dict, Any, Optional, Set
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, and_, distinct
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.processo import Macroprocesso, Processo, PilarEstrategico, ProcessoUnidade
 from ..models.unidade_organizacional import UnidadeOrganizacional
+from ..models.usuario import Usuario
+from ..models.risco import MapeamentoRisco
 
 
 async def obter_subunidades_recursivas(db: AsyncSession, unidade_id: int) -> List[int]:
@@ -48,6 +51,7 @@ async def listar_processos_hierarquicos(
       os processos de todas as unidades/setores subordinados a ela no organograma,
       e todos os Processos Comuns a todas as áreas (is_transversal = True).
     - Se unidade_id for None: exibe o catálogo completo.
+    - Oculta projetos estratégicos (iniciados com padrão [código]).
     """
     # 1. Se unidade_id foi fornecida, identificar processos permitidos
     processos_permitidos_ids: Optional[Set[int]] = None
@@ -73,9 +77,15 @@ async def listar_processos_hierarquicos(
     macros = result.scalars().all()
 
     retorno = []
+    padrao_projeto = re.compile(r"^\s*\[[^\]]+\]")
+
     for m in macros:
         processos_filtrados = []
         for p in m.processos:
+            # Não exibir projetos estratégicos no catálogo de processos (ex: [P1.01] Nome)
+            if padrao_projeto.search(p.nome):
+                continue
+
             # Se for filtro estrito de transversais
             if transversal_only and not p.is_transversal:
                 continue
@@ -107,6 +117,91 @@ async def listar_processos_hierarquicos(
             })
 
     return retorno
+
+
+async def listar_processos_outro(
+    db: AsyncSession,
+    current_user: Dict[str, Any],
+    unidade_id: Optional[int] = None
+) -> List[Dict[str, Any]]:
+    """
+    Retorna os processos customizados cadastrados na categoria 'Outro' que estão
+    visíveis para a unidade e para o usuário logado.
+
+    Regra de Negócio:
+    - Ficam visíveis apenas para o setor onde foi criado, podendo ser visualizados
+      pelas instâncias hierárquicas vinculadas à unidade (unidades ancestrais: Divisão, Gerência, etc.).
+    - Administradores têm visão global.
+    """
+    username = current_user.get("username", "")
+    perfil = current_user.get("perfil", "")
+    groups = current_user.get("groups", [])
+    is_admin = (perfil == "ADMINISTRADOR" or "GLO-SEC-HCPE-SETISD" in groups or username in ["admin", "tassio.silva", "renata.albuquerque.1"])
+
+    stmt_u = select(Usuario).where(Usuario.username == username)
+    res_u = await db.execute(stmt_u)
+    u_obj = res_u.scalar_one_or_none()
+    if u_obj and u_obj.perfil == "ADMINISTRADOR":
+        is_admin = True
+
+    # Busca todas as fichas com processo_outro cadastrado
+    stmt = (
+        select(
+            MapeamentoRisco.processo_outro,
+            MapeamentoRisco.unidade_id,
+            UnidadeOrganizacional.nome.label("unidade_nome")
+        )
+        .join(UnidadeOrganizacional, MapeamentoRisco.unidade_id == UnidadeOrganizacional.id)
+        .where(
+            and_(
+                MapeamentoRisco.processo_outro.isnot(None),
+                MapeamentoRisco.processo_outro != ""
+            )
+        )
+    )
+
+    if unidade_id:
+        stmt = stmt.where(MapeamentoRisco.unidade_id == unidade_id)
+
+    res = await db.execute(stmt)
+    linhas = res.all()
+
+    # Subunidades do usuário (caso não seja admin)
+    subunidades_usuario = set()
+    if not is_admin and u_obj and u_obj.unidade_principal_id:
+        sub_ids = await obter_subunidades_recursivas(db, u_obj.unidade_principal_id)
+        subunidades_usuario = set(sub_ids)
+
+    # Filtra e agrupa processos únicos por nome
+    processos_outro_vistos = set()
+    resultado = []
+
+    for p_outro, u_id, u_nome in linhas:
+        nome_limpo = str(p_outro).strip()
+        if not nome_limpo:
+            continue
+
+        chave = nome_limpo.lower()
+        if chave in processos_outro_vistos:
+            continue
+
+        # Verifica permissão de visibilidade do setor criador
+        if not is_admin:
+            # O processo só é visível se a unidade criadora for a própria unidade do usuário
+            # ou se for uma subunidade vinculada à hierarquia do usuário
+            if u_id not in subunidades_usuario:
+                continue
+
+        processos_outro_vistos.add(chave)
+        resultado.append({
+            "nome": nome_limpo,
+            "unidade_id": u_id,
+            "unidade_nome": u_nome
+        })
+
+    resultado.sort(key=lambda x: x["nome"])
+    return resultado
+
 
 
 async def listar_pilares_estrategicos(db: AsyncSession) -> List[Dict[str, Any]]:

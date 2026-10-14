@@ -15,15 +15,21 @@
     </div>
 
     <!-- Grade 5x5 -->
-    <div class="flex items-center">
-      <!-- Eixo Y: Probabilidade -->
-      <div class="flex flex-col justify-between h-72 mr-3 text-xs font-semibold text-gray-600 text-right w-24">
-        <span class="text-xs uppercase text-gray-400 tracking-wider">Probabilidade</span>
-        <span>5 - Quase Certo</span>
-        <span>4 - Provável</span>
-        <span>3 - Possível</span>
-        <span>2 - Pouco Prov.</span>
-        <span>1 - Improvável</span>
+    <div class="flex items-stretch">
+      <!-- Eixo Y: Título rotacionado -->
+      <div class="flex items-center justify-center w-6 mr-1 select-none">
+        <span class="-rotate-90 whitespace-nowrap text-[11px] uppercase text-gray-400 font-bold tracking-widest">
+          Probabilidade
+        </span>
+      </div>
+
+      <!-- Eixo Y: Rótulos das 5 Linhas perfeitamente alinhados -->
+      <div class="grid grid-rows-5 gap-1.5 h-72 mr-2 text-xs font-semibold text-gray-600 text-right w-24">
+        <div class="flex items-center justify-end">5 - Muito Alta</div>
+        <div class="flex items-center justify-end">4 - Alta</div>
+        <div class="flex items-center justify-end">3 - Média</div>
+        <div class="flex items-center justify-end">2 - Baixa</div>
+        <div class="flex items-center justify-end">1 - Muito Baixa</div>
       </div>
 
       <!-- Células da Matriz (5 linhas de 5 colunas) -->
@@ -51,16 +57,26 @@
       </div>
     </div>
 
-    <!-- Eixo X: Impacto -->
-    <div class="flex justify-between mt-2 pl-28 text-xs font-semibold text-gray-600 text-center">
-      <span class="flex-1">1 - Insignificante</span>
-      <span class="flex-1">2 - Menor</span>
-      <span class="flex-1">3 - Moderado</span>
-      <span class="flex-1">4 - Maior</span>
-      <span class="flex-1">5 - Catastrófico</span>
+    <!-- Eixo X: Impacto alinhado com as colunas -->
+    <div class="flex items-center mt-2">
+      <div class="w-6 mr-1 shrink-0"></div>
+      <div class="w-24 mr-2 shrink-0"></div>
+      <div class="flex-1 grid grid-cols-5 gap-1.5 text-xs font-semibold text-gray-600 text-center">
+        <div>1 - Muito Baixo</div>
+        <div>2 - Baixo</div>
+        <div>3 - Médio</div>
+        <div>4 - Alto</div>
+        <div>5 - Muito Alto</div>
+      </div>
     </div>
-    <div class="text-center text-xs uppercase text-gray-400 font-semibold tracking-wider mt-1 pl-24">
-      Impacto
+
+    <!-- Eixo X: Título centralizado -->
+    <div class="flex items-center mt-1">
+      <div class="w-6 mr-1 shrink-0"></div>
+      <div class="w-24 mr-2 shrink-0"></div>
+      <div class="flex-1 text-center text-xs uppercase text-gray-400 font-bold tracking-wider select-none">
+        Impacto
+      </div>
     </div>
   </div>
 </template>
@@ -68,9 +84,10 @@
 <script setup lang="ts">
 const props = defineProps<{
   counts?: Record<string, number>;
-  activeP?: number;
-  activeI?: number;
+  activeP?: number | null;
+  activeI?: number | null;
 }>();
+
 
 function getCellColor(p: number, i: number): string {
   const inerente = p * i;
