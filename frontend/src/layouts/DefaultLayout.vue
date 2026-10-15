@@ -48,6 +48,17 @@
 
           <router-link 
             v-if="authStore.isAuthenticated" 
+            to="/riscos/novo" 
+            :title="isCollapsed ? 'Novo Mapeamento' : ''"
+            :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
+            class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
+          >
+            <PlusCircleIcon class="h-6 w-6 shrink-0 text-emerald-300" />
+            <span v-if="!isCollapsed" class="truncate font-medium">Novo Mapeamento</span>
+          </router-link>
+
+          <router-link 
+            v-if="authStore.isAuthenticated" 
             to="/riscos/mapeados" 
             :title="isCollapsed ? 'Riscos Mapeados' : ''"
             :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
@@ -55,17 +66,6 @@
           >
             <ClipboardDocumentListIcon class="h-6 w-6 shrink-0 text-cyan-300" />
             <span v-if="!isCollapsed" class="truncate font-medium">Riscos Mapeados</span>
-          </router-link>
-
-          <router-link 
-            v-if="authStore.isAuthenticated" 
-            to="/riscos/novo" 
-            :title="isCollapsed ? 'Novo Mapeamento' : ''"
-            :class="[isCollapsed ? 'justify-center px-2' : 'px-4']"
-            class="flex items-center space-x-3 py-2.5 rounded transition duration-200 hover:bg-paper-active-link hover:text-white"
-          >
-            <PlusCircleIcon class="h-6 w-6 shrink-0 text-emerald-300" />
-            <span v-if="!isCollapsed" class="truncate">Novo Mapeamento</span>
           </router-link>
 
           <router-link 

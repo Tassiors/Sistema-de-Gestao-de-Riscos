@@ -54,11 +54,62 @@ async def listar_mapeamentos_risco(
 
 @router.get("/painel/matriz", response_model=Dict[str, Any])
 async def obter_dados_matriz_riscos(
+    unidade_id: Optional[int] = Query(None, description="Filtrar por unidade organizacional"),
     db: AsyncSession = Depends(get_app_db_session),
     current_user: Dict[str, Any] = Depends(auth_handler.decode_token)
 ):
-    """Retorna a contagem agregada de riscos nos quadrantes da matriz 5x5."""
-    return await risco_controller.obter_estatisticas_matriz(db=db, current_user=current_user)
+    """Retorna a contagem agregada de riscos nos quadrantes da matriz 5x5 e agrupamento por gerências."""
+    return await risco_controller.obter_estatisticas_matriz(
+        db=db,
+        current_user=current_user,
+        unidade_id=unidade_id
+    )
+
+
+class ExcluirLoteRequest(BaseModel):
+    ids: List[int]
+
+
+@router.post("/excluir-lote", response_model=Dict[str, Any])
+async def excluir_mapeamentos_em_lote(
+    payload: ExcluirLoteRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_app_db_session),
+    current_user: Dict[str, Any] = Depends(auth_handler.decode_token)
+):
+    """
+    Exclui múltiplas fichas de riscos do sistema em lote numa única transação atômica:
+    - Administradores podem deletar quaisquer fichas selecionadas.
+    - Gestores de unidade podem deletar apenas fichas pertencentes à sua própria unidade.
+    - Registra auditoria individualizada para cada ficha.
+    """
+    ip_origem = request.client.host if request.client else None
+    return await risco_controller.excluir_mapeamentos_em_lote(
+        db=db,
+        mapeamento_ids=payload.ids,
+        current_user=current_user,
+        ip_origem=ip_origem
+    )
+
+
+class ObterLoteRequest(BaseModel):
+    ids: List[int]
+
+
+@router.post("/detalhes-lote", response_model=List[Dict[str, Any]])
+async def obter_detalhes_em_lote(
+    payload: ObterLoteRequest,
+    db: AsyncSession = Depends(get_app_db_session),
+    current_user: Dict[str, Any] = Depends(auth_handler.decode_token)
+):
+    """
+    Retorna dados detalhados de múltiplos mapeamentos para impressão unificada em lote.
+    """
+    return await risco_controller.obter_mapeamentos_detalhados_em_lote(
+        db=db,
+        mapeamento_ids=payload.ids,
+        current_user=current_user
+    )
 
 
 @router.get("/{id}", response_model=Dict[str, Any])
@@ -112,4 +163,5 @@ async def deletar_mapeamento_risco(
         current_user=current_user,
         ip_origem=ip_origem
     )
+
 

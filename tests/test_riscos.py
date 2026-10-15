@@ -48,6 +48,52 @@ def test_motor_calculo_tolerancia_limite():
     assert res["acima_apetite"] is False
 
 
+def test_coordenada_residual_respeita_apetite_risco():
+    """
+    Garante que para um risco dentro do apetite (residual <= 7), a célula destacada
+    na Matriz de Riscos obrigatoriamente tenha produto <= 7 (zona de tolerância),
+    nunca caindo em células de risco alto (prod >= 8).
+    """
+    from src.controllers.risco_controller import calcular_coordenada_residual
+
+    # Caso 1: P=4, I=3 (Inerente=12), Residual Alvo=7 (Dentro do apetite)
+    # Entre 6 (Médio) e 8 (Alto), DEVE obrigatoriamente selecionar a célula de valor 6
+    p_res, i_res = calcular_coordenada_residual(4, 3, 7)
+    prod = p_res * i_res
+    assert prod <= 7, f"Esperava célula na zona de tolerância (<= 7), mas obteve produto {prod} (P={p_res}, I={i_res})"
+    assert prod == 6
+
+    # Caso 1.1: P=4, I=3 (Inerente=12), Residual Alvo=7.2 (FNC 0.6 float)
+    # Deve arredondar e manter estritamente dentro da tolerância (<= 7), resultando em produto 6
+    p_res, i_res = calcular_coordenada_residual(4, 3, 7.2)
+    assert p_res * i_res == 6
+
+    # Caso 2: P=3, I=3 (Inerente=9), Residual Alvo=7 (Dentro do apetite)
+    p_res, i_res = calcular_coordenada_residual(3, 3, 7)
+    prod = p_res * i_res
+    assert prod <= 7
+    assert prod == 6
+
+    # Caso 2.1: P=4, I=2 (Inerente=8), Residual Alvo=7 (Dentro do apetite)
+    p_res, i_res = calcular_coordenada_residual(4, 2, 7)
+    assert p_res * i_res == 6
+
+    # Caso 3: P=4, I=3 (Inerente=12), Residual Alvo=8 (Acima do apetite)
+    # DEVE obrigatoriamente selecionar uma célula com prod > 7
+    p_res, i_res = calcular_coordenada_residual(4, 3, 8)
+    prod = p_res * i_res
+    assert prod > 7
+    assert prod == 8
+
+    # Varredura exaustiva: nenhum residual <= 7.99 pode cair em célula com produto > 7
+    for p in range(1, 6):
+        for i in range(1, 6):
+            for res_teste in [1, 2, 3, 4, 5, 6, 7, 7.2, 7.99]:
+                pr, ir = calcular_coordenada_residual(p, i, res_teste)
+                assert pr * ir <= 7, f"Falha para P={p}, I={i}, residual={res_teste}: caiu em {pr}x{ir}={pr*ir}"
+
+
+
 
 def test_rotas_protegidas_default_private(client):
     """Garante que requisições não autenticadas sejam bloqueadas com HTTP 401."""
@@ -221,4 +267,258 @@ def test_endpoint_processos_outros(client):
     res = client.get("/api/processos/outros", headers=headers)
     assert res.status_code == 200
     assert isinstance(res.json(), list)
+
+
+def test_sigla_unidade_na_listagem_de_riscos(client):
+    """Garante que a listagem de mapeamentos inclui o campo 'sigla' no objeto da unidade."""
+    login_res = client.post("/api/login", data={"username": "admin", "password": "admin"})
+    headers = {"Authorization": f"Bearer {login_res.json()['access_token']}"}
+
+    res = client.get("/api/riscos", headers=headers)
+    assert res.status_code == 200
+    mapeamentos = res.json()
+    assert isinstance(mapeamentos, list)
+    if mapeamentos:
+        primeiro = mapeamentos[0]
+        if primeiro.get("unidade"):
+            assert "sigla" in primeiro["unidade"]
+
+
+def test_painel_matriz_gerencias_e_filtro_unidade(client):
+    """Garante que o painel de riscos retorna os cards por gerência e aceita filtro por unidade_id."""
+    login_res = client.post("/api/login", data={"username": "admin", "password": "admin"})
+    headers = {"Authorization": f"Bearer {login_res.json()['access_token']}"}
+
+    # 1. Consulta geral sem filtro
+    res = client.get("/api/riscos/painel/matriz", headers=headers)
+    assert res.status_code == 200
+    dados = res.json()
+    assert "quadrantes" in dados
+    assert "pode_ver_gerencias" in dados
+    assert dados["pode_ver_gerencias"] is True  # Admin tem acesso total
+
+    gerencias = dados["gerencias"]
+    assert len(gerencias) == 4
+    siglas = [g["sigla"] for g in gerencias]
+    assert set(siglas) == {"SUP", "GAS", "GAD", "GEP"}
+
+    for g in gerencias:
+        assert "total" in g
+        assert "baixo" in g
+        assert "medio" in g
+        assert "alto" in g
+        assert "extremo" in g
+        assert g["total"] == g["baixo"] + g["medio"] + g["alto"] + g["extremo"]
+        # Indicador de unidades com risco mapeado
+        assert "total_unidades" in g
+        assert "unidades_com_risco" in g
+        assert "percentual_mapeado" in g
+        assert isinstance(g["percentual_mapeado"], (int, float))
+        assert "unidades_detalhes" in g
+        assert isinstance(g["unidades_detalhes"], list)
+
+    # 2. Consulta filtrando por unidade_id
+    res_filtrado = client.get("/api/riscos/painel/matriz?unidade_id=1", headers=headers)
+    assert res_filtrado.status_code == 200
+    dados_filtrados = res_filtrado.json()
+    assert "quadrantes" in dados_filtrados
+    assert "gerencias" in dados_filtrados
+    assert "pode_ver_gerencias" in dados_filtrados
+
+
+def test_versionamento_e_resubmissao_ficha(client):
+    """Garante que ao criar e submeter uma ficha, ela ganha metadados de versão e autor, e ao re-submeter, a versão é incrementada."""
+    login_res = client.post("/api/login", data={"username": "admin", "password": "admin"})
+    headers = {"Authorization": f"Bearer {login_res.json()['access_token']}"}
+
+    # 1. Criação com status SUBMETIDO
+    payload = {
+        "unidade_id": 1,
+        "processo_id": 1,
+        "possui_projeto": False,
+        "entrega_processo": "Entrega inicial para versionamento",
+        "status": "SUBMETIDO",
+        "eventos": [
+            {
+                "categoria": "OPERACIONAL",
+                "causa": "Causa teste versionamento",
+                "descricao_evento": "Evento teste versionamento",
+                "consequencia": "Consequência teste versionamento",
+                "avaliacao": {
+                    "probabilidade": 2,
+                    "impacto": 2,
+                    "nivel_controle": "INEXISTENTE",
+                    "controles": []
+                },
+                "planos_acao": [],
+                "planos_contingencia": []
+            }
+        ]
+    }
+    res_create = client.post("/api/riscos", json=payload, headers=headers)
+    assert res_create.status_code == 200
+    ficha = res_create.json()
+    ficha_id = ficha["id"]
+    assert ficha["versao"] == 1
+    assert "v1.0 (Original)" in ficha["tag_versao"]
+    assert ficha["submetido_em"] is not None
+    assert ficha["criado_por"] is not None
+
+    # 2. Re-submissão após edição de campo
+    payload["id"] = ficha_id
+    payload["entrega_processo"] = "Entrega revisada e aprimorada"
+    res_edit = client.post("/api/riscos", json=payload, headers=headers)
+    assert res_edit.status_code == 200
+    ficha_v2 = res_edit.json()
+    assert ficha_v2["versao"] == 2
+    assert "v2.0 (Revisada)" in ficha_v2["tag_versao"]
+    assert ficha_v2["submetido_em"] is not None
+
+    # Limpeza
+    client.delete(f"/api/riscos/{ficha_id}", headers=headers)
+
+
+def test_unidades_apenas_mapeamento_param(client):
+    """Garante que o parâmetro apenas_mapeamento=true responde corretamente."""
+    login_res = client.post("/api/login", data={"username": "admin", "password": "admin"})
+    headers = {"Authorization": f"Bearer {login_res.json()['access_token']}"}
+
+    res = client.get("/api/unidades?apenas_mapeamento=true", headers=headers)
+    assert res.status_code == 200
+    assert isinstance(res.json(), list)
+
+
+def test_exclusao_lote_fichas_risco(client):
+    """Valida a exclusão em lote de fichas cadastradas via POST /api/riscos/excluir-lote."""
+    login_res = client.post("/api/login", data={"username": "admin", "password": "admin"})
+    headers = {"Authorization": f"Bearer {login_res.json()['access_token']}"}
+
+    # Obtém unidade e processo válidos
+    unidades_res = client.get("/api/unidades", headers=headers)
+    assert unidades_res.status_code == 200
+    unidade_id = unidades_res.json()[0]["id"]
+
+    proc_res = client.get("/api/processos", headers=headers)
+    assert proc_res.status_code == 200
+    processo_id = proc_res.json()[0]["processos"][0]["id"]
+
+    # 1. Cria 2 fichas de teste
+    ids_criados = []
+    for i in range(2):
+        payload = {
+            "unidade_id": unidade_id,
+            "processo_id": processo_id,
+            "entrega_processo": f"Entrega Lote {i}",
+            "status": "RASCUNHO",
+            "eventos": [
+                {
+                    "categoria": "OPERACIONAL",
+                    "causa": f"Causa Lote {i}",
+                    "descricao_evento": f"Evento Lote {i}",
+                    "consequencia": f"Consequência Lote {i}",
+                    "avaliacao": {
+                        "probabilidade": 2,
+                        "impacto": 2,
+                        "nivel_controle": "INEXISTENTE",
+                        "controles": []
+                    },
+                    "planos_acao": [],
+                    "planos_contingencia": []
+                }
+            ]
+        }
+        res_create = client.post("/api/riscos", json=payload, headers=headers)
+        assert res_create.status_code == 200
+        ids_criados.append(res_create.json()["id"])
+
+    assert len(ids_criados) == 2
+
+    # 2. Testa exclusão em lote com lista vazia (deve retornar 400)
+    res_vazia = client.post("/api/riscos/excluir-lote", json={"ids": []}, headers=headers)
+    assert res_vazia.status_code == 400
+
+    # 3. Executa exclusão em lote com os 2 IDs criados
+    res_lote = client.post("/api/riscos/excluir-lote", json={"ids": ids_criados}, headers=headers)
+    assert res_lote.status_code == 200
+    dados_resp = res_lote.json()
+    assert dados_resp["total_excluidos"] == 2
+    assert set(dados_resp["ids"]) == set(ids_criados)
+
+    # 4. Garante que as fichas foram realmente removidas
+    for id_removido in ids_criados:
+        res_get = client.get(f"/api/riscos/{id_removido}", headers=headers)
+        assert res_get.status_code == 404
+
+
+def test_obter_detalhes_em_lote_para_impressao(client):
+    """Testa a obtenção dos dados detalhados de múltiplas fichas para impressão em lote."""
+    login_res = client.post("/api/login", data={"username": "admin", "password": "admin"})
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    unidades_res = client.get("/api/unidades", headers=headers)
+    unidade_id = unidades_res.json()[0]["id"]
+
+    proc_res = client.get("/api/processos", headers=headers)
+    processo_id = proc_res.json()[0]["processos"][0]["id"]
+
+    # Cria 2 fichas com dados completos
+    ids = []
+    for i in range(2):
+        payload = {
+            "unidade_id": unidade_id,
+            "processo_id": processo_id,
+            "entrega_processo": f"Entrega Impressao {i}",
+            "status": "SUBMETIDO",
+            "eventos": [
+                {
+                    "categoria": "ASSISTENCIAL",
+                    "causa": f"Causa Impressao {i}",
+                    "descricao_evento": f"Evento Impressao {i}",
+                    "consequencia": f"Consequência Impressao {i}",
+                    "avaliacao": {
+                        "probabilidade": 3,
+                        "impacto": 4,
+                        "nivel_controle": "MEDIANO",
+                        "controles": [{"descricao_controle": f"Controle {i}"}]
+                    },
+                    "planos_acao": [
+                        {
+                            "tipo_resposta": "MITIGAR",
+                            "o_que": f"Ação {i}",
+                            "como": "Procedimento padrão",
+                            "quem": "Equipe",
+                            "data_inicio": "2026-01-01",
+                            "data_termino": "2026-06-01"
+                        }
+                    ],
+                    "planos_contingencia": []
+                }
+            ]
+        }
+        res_create = client.post("/api/riscos", json=payload, headers=headers)
+        assert res_create.status_code == 200
+        ids.append(res_create.json()["id"])
+
+    # 1. Consulta em lote
+    res_lote = client.post("/api/riscos/detalhes-lote", json={"ids": ids}, headers=headers)
+    assert res_lote.status_code == 200
+    fichas = res_lote.json()
+    assert len(fichas) == 2
+
+    # Verifica se os dados necessários para o layout A4 estão presentes
+    for ficha in fichas:
+        assert ficha["id"] in ids
+        assert ficha["unidade"] is not None
+        assert ficha["processo"] is not None
+        assert len(ficha["eventos"]) == 1
+        assert ficha["eventos"][0]["avaliacao"]["probabilidade"] == 3
+        assert len(ficha["eventos"][0]["avaliacao"]["controles"]) == 1
+        assert len(ficha["eventos"][0]["planos_acao"]) == 1
+
+    # Limpeza
+    client.post("/api/riscos/excluir-lote", json={"ids": ids}, headers=headers)
+
+
+
 

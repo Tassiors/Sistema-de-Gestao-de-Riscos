@@ -24,7 +24,10 @@ class MapeamentoRisco(Base):
     pilar_estrategico_id = Column(Integer, ForeignKey("pilares_estrategicos.id"), nullable=True)
     entrega_processo = Column(Text, nullable=False)
     processo_outro = Column(String(250), nullable=True)
-    status = Column(String(50), default="RASCUNHO", nullable=False, index=True)  # RASCUNHO, SUBMETIDO, EM_MONITORAMENTO, REVISAO_SOLICITADA, ENCERRADO
+    status = Column(String(50), default="RASCUNHO", nullable=False, index=True)  # RASCUNHO, SUBMETIDO
+    versao = Column(Integer, default=1, nullable=False)
+    tag_versao = Column(String(50), default="v1.0 (Original)", nullable=False)
+    submetido_em = Column(DateTime, nullable=True)
     observacoes_ugerc = Column(Text, nullable=True)
     criado_por_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
     criado_em = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)

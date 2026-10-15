@@ -3,35 +3,82 @@
     <!-- Conteúdo da Interface na Tela (Oculto na Impressão) -->
     <div class="max-w-6xl mx-auto space-y-6 pb-12 print:hidden">
       <!-- Header do Formulário -->
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
-        <div>
-          <h2 class="text-xl font-bold text-gray-900">Mapeamento de Riscos por Processo</h2>
-          <p class="text-xs text-gray-500 mt-1">Conforme Guia Prático GU.UGERC.001 (HC-UFPE / EBSERH)</p>
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-xl font-bold text-gray-900">Mapeamento de Riscos por Processo</h2>
+              <span 
+                v-if="form.tag_versao" 
+                class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200"
+              >
+                {{ form.tag_versao }}
+              </span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mt-1.5">
+              <template v-if="form.criado_por">
+                <span class="text-gray-600">
+                  Criado por: <strong class="text-gray-800">{{ form.criado_por.nome || form.criado_por.username }}</strong>
+                  <span v-if="form.criado_em"> em {{ formatarDataHora(form.criado_em) }}</span>
+                </span>
+              </template>
+              <template v-if="form.submetido_em">
+                <span v-if="form.criado_por" class="text-gray-300">•</span>
+                <span class="text-blue-700 font-semibold">
+                  Submetido em: {{ formatarDataHora(form.submetido_em) }}
+                </span>
+              </template>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2.5 shrink-0 flex-wrap gap-y-2">
+            <span 
+              :class="form.status === 'RASCUNHO' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'"
+              class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
+            >
+              {{ form.status }}
+            </span>
+            <template v-if="podeEditarFicha">
+              <button 
+                @click="salvar(false)" 
+                :disabled="salvando"
+                class="px-3.5 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+              >
+                Salvar Rascunho
+              </button>
+              <button 
+                @click="salvar(true)" 
+                :disabled="salvando || !podeSubmeterBotao"
+                :class="podeSubmeterBotao ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'"
+                class="px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition flex items-center gap-1.5"
+                :title="tooltipSubmeter"
+              >
+                <span v-if="podeSubmeterBotao">🚀</span>
+                <span>Submeter para UGERC</span>
+              </button>
+            </template>
+            <span v-else class="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-lg border border-gray-200 flex items-center gap-1">
+              <span>🔒</span> Somente Leitura
+            </span>
+
+            <!-- Botão Imprimir posicionado ao lado do Submeter -->
+            <button 
+              type="button" 
+              @click="imprimirFichaCompleta"
+              :disabled="!podeSubmeter"
+              :class="podeSubmeter ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-sm' : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'"
+              class="px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition flex items-center gap-1.5"
+              :title="!podeSubmeter ? ('Para habilitar a impressão em PDF, conclua todas as etapas obrigatórias: ' + textoPendencias) : 'Imprimir'"
+            >
+              <span>🖨️</span>
+              <span>Imprimir</span>
+            </button>
+          </div>
         </div>
-        <div class="flex items-center space-x-3">
-          <span 
-            :class="form.status === 'RASCUNHO' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'"
-            class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
-          >
-            {{ form.status }}
-          </span>
-          <button 
-            @click="salvar(false)" 
-            :disabled="salvando"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
-          >
-            Salvar Rascunho
-          </button>
-          <button 
-            @click="salvar(true)" 
-            :disabled="salvando || !podeSubmeter"
-            :class="podeSubmeter ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'"
-            class="px-5 py-2 text-sm font-medium rounded-lg transition flex items-center gap-1.5"
-            :title="!podeSubmeter ? ('Preencha as etapas obrigatórias para habilitar: ' + textoPendencias) : 'Submeter mapeamento à UGERC'"
-          >
-            <span v-if="podeSubmeter">🚀</span>
-            <span>Submeter para UGERC</span>
-          </button>
+
+        <!-- Banner de Somente Leitura -->
+        <div v-if="!podeEditarFicha" class="mt-4 p-3 bg-amber-50 border border-amber-200 text-amber-900 rounded-lg text-xs flex items-center gap-2">
+          <span class="text-base">ℹ️</span>
+          <span><strong>Modo de Visualização:</strong> Instâncias superiores vinculadas no organograma ou usuários com acesso via matriz de visibilidade podem apenas consultar este mapeamento. Fichas só podem ser editadas pelo gestor da própria unidade ou Administrador.</span>
         </div>
       </div>
 
@@ -497,7 +544,6 @@
               <div class="flex justify-between items-center mb-3">
                 <div>
                   <label class="block text-xs font-bold text-gray-800">Quão provável é a ocorrência deste risco? *</label>
-                  <p class="text-[11px] text-gray-500">Tabela 2 - Escala de Probabilidade (GU.UGERC.001)</p>
                 </div>
                 <span v-if="avaliacao.probabilidade" :class="getBadgeEscalaClass(avaliacao.probabilidade)" class="text-xs px-2.5 py-1 rounded-lg font-bold transition-colors shadow-sm">
                   Peso {{ avaliacao.probabilidade }} - {{ probabilidadeSelecionada?.rotulo }}
@@ -550,7 +596,6 @@
               <div class="flex justify-between items-center mb-3">
                 <div>
                   <label class="block text-xs font-bold text-gray-800">Qual o grau de impacto deste risco? *</label>
-                  <p class="text-[11px] text-gray-500">Tabela 1 - Escala de Impacto (GU.UGERC.001)</p>
                 </div>
                 <span v-if="avaliacao.impacto" :class="getBadgeEscalaClass(avaliacao.impacto)" class="text-xs px-2.5 py-1 rounded-lg font-bold transition-colors shadow-sm">
                   Peso {{ avaliacao.impacto }} - {{ impactoSelecionado?.rotulo }}
@@ -815,11 +860,18 @@
 
       <!-- ETAPA 4: Matriz de Priorização -->
       <div v-show="etapaAtual === 4" class="space-y-5">
-        <h3 class="text-base font-bold text-gray-800 border-b pb-2">4. Priorização dos Riscos na Matriz 5x5</h3>
+        <h3 class="text-base font-bold text-gray-800 border-b pb-2">4. Priorização dos Riscos na Matriz de Riscos</h3>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="lg:col-span-2">
-            <MatrizRisco5x5 :activeP="avaliacao.probabilidade" :activeI="avaliacao.impacto" />
+            <MatrizRisco5x5 
+              :activeP="avaliacao.probabilidade" 
+              :activeI="avaliacao.impacto" 
+              :activeResidual="calculo.risco_residual"
+              :activeClassificacao="calculo.classificacao"
+              :fatorMitigacao="calculo.fator_mitigacao"
+              :nivelControle="nivelControleSelecionado?.rotulo"
+            />
           </div>
 
           <div class="space-y-4">
@@ -898,22 +950,9 @@
 
       <!-- ETAPA 5: Resposta, 5W2H e Contingência -->
       <div v-show="etapaAtual === 5" class="space-y-6">
-        <div class="border-b pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h3 class="text-base font-bold text-gray-800">5. Respostas aos Riscos, Planos de Ação e Contingência</h3>
-            <p class="text-xs text-gray-500">Elabore o plano de tratamento (5W2H) e plano de contingência com gatilhos operacionais.</p>
-          </div>
-          <button 
-            type="button" 
-            @click="imprimirFichaCompleta"
-            :disabled="!podeSubmeter"
-            :class="podeSubmeter ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-sm' : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'"
-            class="px-4 py-2 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 self-start sm:self-auto"
-            :title="!podeSubmeter ? ('Para habilitar a impressão em PDF, conclua todas as etapas obrigatórias: ' + textoPendencias) : 'Imprimir Ficha Completa (PDF)'"
-          >
-            <span class="text-sm">🖨️</span>
-            <span>Imprimir Ficha Completa (PDF)</span>
-          </button>
+        <div class="border-b pb-3">
+          <h3 class="text-base font-bold text-gray-800">5. Respostas aos Riscos, Planos de Ação e Contingência</h3>
+          <p class="text-xs text-gray-500">Elabore o plano de ação e plano de contingência com gatilhos operacionais.</p>
         </div>
 
         <!-- Planos de Ação 5W2H -->
@@ -979,8 +1018,13 @@
         <div class="space-y-3 pt-4 border-t">
           <div class="flex justify-between items-center">
             <div>
-              <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Planos de Contingência</h4>
-              <p class="text-xs text-gray-500">Ações preparadas para ativação imediata caso o gatilho ocorra.</p>
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Planos de Contingência</h4>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 uppercase">
+                  OPCIONAL
+                </span>
+              </div>
+              <p class="text-xs text-gray-500 mt-0.5">Ações preparadas para ativação imediata caso o gatilho ocorra.</p>
             </div>
             <button 
               type="button" 
@@ -1052,158 +1096,163 @@
     </div> <!-- Fim de .max-w-6xl (print:hidden) -->
 
     <!-- Seção de Impressão Unificada (Visível em Impressão ou Geração de PDF - Multi-páginas) -->
-    <div id="secao-relatorio-impressao" class="hidden print:block text-gray-900 bg-white font-sans">
+    <div id="secao-relatorio-impressao" class="hidden print:block text-gray-900 bg-white font-sans max-w-[99%] mx-auto">
       <!-- Cabeçalho Institucional -->
-      <div class="bloco-impressao border-b-2 border-blue-900 pb-3 mb-4 flex justify-between items-start">
+      <div class="bloco-impressao border-b-2 border-blue-900 pb-2.5 mb-3 flex justify-between items-start">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 bg-blue-900 text-white rounded-lg flex items-center justify-center font-black text-xl tracking-tighter">
+          <div class="w-11 h-11 bg-blue-900 text-white rounded-lg flex items-center justify-center font-black text-lg tracking-tighter">
             HC
           </div>
           <div>
-            <h1 class="text-base font-extrabold uppercase text-blue-950 tracking-wide">Hospital das Clínicas da UFPE / EBSERH</h1>
-            <p class="text-xs text-gray-700 font-semibold">UGERC - Unidade de Gestão de Riscos e Controles Internos</p>
-            <p class="text-[11px] text-gray-500">Sistema Corporativo de Gestão de Riscos por Processo (GU.UGERC.001)</p>
+            <h1 class="text-sm font-extrabold uppercase text-blue-950 tracking-wide">Hospital das Clínicas da UFPE / EBSERH</h1>
+            <p class="text-[11px] text-gray-700 font-semibold">UGERC - Unidade de Gestão de Riscos e Controles Internos</p>
           </div>
         </div>
         <div class="text-right">
-          <span class="inline-block px-3 py-1 rounded border text-xs font-bold"
+          <span class="inline-block px-2.5 py-0.5 rounded border text-[11px] font-bold"
                 :class="form.status === 'HOMOLOGADO' ? 'border-emerald-500 bg-emerald-50 text-emerald-800' : form.status === 'SUBMETIDO' ? 'border-blue-500 bg-blue-50 text-blue-800' : 'border-amber-500 bg-amber-50 text-amber-800'">
             STATUS: {{ form.status }}
           </span>
-          <p class="text-[10px] text-gray-500 mt-1">Ficha ID #{{ form.id || 'NOVA' }}</p>
+          <p class="text-[10px] text-gray-500 mt-0.5">Ficha ID #{{ form.id || 'NOVA' }}</p>
           <p class="text-[10px] text-gray-400">Emissão: {{ dataHoraAtual }}</p>
         </div>
       </div>
 
-      <div class="bloco-impressao text-center mb-4">
-        <h2 class="text-base font-bold text-gray-900 uppercase tracking-wide">Ficha Completa de Mapeamento de Risco</h2>
-        <p class="text-xs text-gray-600">Relatório Unificado das 5 Etapas Metodológicas UGERC</p>
+      <div class="bloco-impressao text-center mb-3">
+        <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Ficha Completa de Mapeamento de Risco</h2>
+        <p class="text-[11px] text-gray-600">Relatório Unificado das 5 Etapas Metodológicas UGERC</p>
       </div>
 
       <!-- 1. Contexto e Processo -->
-      <div class="bloco-impressao mb-4 border border-gray-300 rounded-lg overflow-hidden">
-        <div class="bg-gray-100 px-3 py-1.5 border-b border-gray-300 font-bold text-xs uppercase text-gray-800 flex justify-between">
+      <div class="bloco-impressao mb-3 border border-gray-300 rounded-md">
+        <div class="bg-gray-100 px-3 py-1 border-b border-gray-300 font-bold text-xs uppercase text-gray-800 flex justify-between">
           <span>1. Entendimento do Contexto e Processo Hospitalar</span>
-          <span class="text-[11px] font-normal text-gray-600">Etapa 1</span>
+          <span class="text-[10px] font-normal text-gray-600">Etapa 1</span>
         </div>
-        <div class="p-3 text-xs space-y-2">
-          <div class="grid grid-cols-2 gap-4">
+        <div class="p-2.5 text-xs space-y-2">
+          <div class="grid grid-cols-2 gap-3">
             <div>
-              <span class="font-bold text-gray-700 block">Unidade Organizacional:</span>
+              <span class="font-bold text-gray-700 block text-[11px]">Unidade Organizacional:</span>
               <span class="text-gray-900">{{ unidadeSelecionada ? `${unidadeSelecionada.nome} (${unidadeSelecionada.sigla || 'Sem sigla'})` : 'Não informada' }}</span>
             </div>
             <div>
-              <span class="font-bold text-gray-700 block">Processo / Macroprocesso:</span>
+              <span class="font-bold text-gray-700 block text-[11px]">Processo / Macroprocesso:</span>
               <span class="text-gray-900">
                 {{ isProcessoOutro ? (form.processo_outro ? `${form.processo_outro} (Outro Processo)` : 'Outro Processo') : (processoSelecionado ? `${processoSelecionado.nome} [${processoSelecionado.macroprocessoNome}]` : 'Não selecionado') }}
               </span>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-4 pt-1 border-t border-gray-100">
-            <div>
-              <span class="font-bold text-gray-700 block">Pilar Estratégico HC-UFPE:</span>
-              <span class="text-gray-900">{{ pilarSelecionado ? pilarSelecionado.nome : 'Não informado' }}</span>
+
+          <!-- Exibir Pilar Estratégico e Projeto Vinculado APENAS se houver registro destes na ficha -->
+          <div 
+            v-if="pilarSelecionado || (form.possui_projeto && form.nome_projeto)" 
+            class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-gray-100"
+          >
+            <div v-if="pilarSelecionado">
+              <span class="font-bold text-gray-700 block text-[11px]">Pilar Estratégico HC-UFPE:</span>
+              <span class="text-gray-900">{{ pilarSelecionado.nome }}</span>
             </div>
-            <div>
-              <span class="font-bold text-gray-700 block">Projeto Vinculado:</span>
-              <span class="text-gray-900">{{ form.possui_projeto ? (form.nome_projeto || 'Sim (Sem título especificado)') : 'Não vinculado a projeto estratégico específico' }}</span>
+            <div v-if="form.possui_projeto && form.nome_projeto">
+              <span class="font-bold text-gray-700 block text-[11px]">Projeto Vinculado:</span>
+              <span class="text-gray-900">{{ form.nome_projeto }}</span>
             </div>
           </div>
+
           <div class="pt-1 border-t border-gray-100">
-            <span class="font-bold text-gray-700 block">Entrega Esperada do Processo:</span>
-            <p class="text-gray-800 italic bg-gray-50 p-2 rounded border border-gray-200 mt-1 whitespace-pre-wrap">{{ form.entrega_processo || 'Não informada' }}</p>
+            <span class="font-bold text-gray-700 block text-[11px]">Entrega Esperada do Processo:</span>
+            <p class="text-gray-800 italic bg-gray-50/70 p-2 rounded border border-gray-200 mt-0.5 whitespace-pre-wrap">{{ form.entrega_processo || 'Não informada' }}</p>
           </div>
         </div>
       </div>
 
       <!-- 2. Identificação do Risco -->
-      <div class="bloco-impressao mb-4 border border-gray-300 rounded-lg overflow-hidden">
-        <div class="bg-gray-100 px-3 py-1.5 border-b border-gray-300 font-bold text-xs uppercase text-gray-800 flex justify-between">
+      <div class="bloco-impressao mb-3 border border-gray-300 rounded-md">
+        <div class="bg-gray-100 px-3 py-1 border-b border-gray-300 font-bold text-xs uppercase text-gray-800 flex justify-between">
           <span>2. Identificação do Risco</span>
-          <span class="text-[11px] font-normal text-gray-600">Etapa 2</span>
+          <span class="text-[10px] font-normal text-gray-600">Etapa 2</span>
         </div>
-        <div class="p-3 text-xs space-y-2">
+        <div class="p-2.5 text-xs space-y-2">
           <div class="flex items-center gap-2">
-            <span class="font-bold text-gray-700">Categoria do Risco:</span>
-            <span class="px-2 py-0.5 bg-blue-100 text-blue-900 font-bold rounded text-[11px] border border-blue-200">
+            <span class="font-bold text-gray-700 text-[11px]">Categoria do Risco:</span>
+            <span class="px-2 py-0.5 bg-blue-100 text-blue-900 font-bold rounded text-[10px] border border-blue-200">
               {{ categoriaSelecionada?.nome || evento.categoria }}
             </span>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
-            <div class="p-2.5 rounded bg-gray-50 border border-gray-200">
-              <span class="font-bold text-gray-700 block text-[11px] uppercase">Causa (Origem / Fator)</span>
-              <p class="text-gray-900 mt-1">{{ evento.causa || 'Não preenchida' }}</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
+            <div class="p-2 rounded bg-gray-50/70 border border-gray-200">
+              <span class="font-bold text-gray-700 block text-[10px] uppercase">Causa (Origem / Fator)</span>
+              <p class="text-gray-900 mt-0.5 text-[11px]">{{ evento.causa || 'Não preenchida' }}</p>
             </div>
-            <div class="p-2.5 rounded bg-gray-50 border border-gray-200">
-              <span class="font-bold text-gray-700 block text-[11px] uppercase">Evento de Risco</span>
-              <p class="text-gray-900 mt-1 font-semibold text-rose-950">{{ evento.descricao_evento || 'Não preenchido' }}</p>
+            <div class="p-2 rounded bg-gray-50/70 border border-gray-200">
+              <span class="font-bold text-gray-700 block text-[10px] uppercase">Evento de Risco</span>
+              <p class="text-gray-900 mt-0.5 font-semibold text-rose-950 text-[11px]">{{ evento.descricao_evento || 'Não preenchido' }}</p>
             </div>
-            <div class="p-2.5 rounded bg-gray-50 border border-gray-200">
-              <span class="font-bold text-gray-700 block text-[11px] uppercase">Consequência (Impacto)</span>
-              <p class="text-gray-900 mt-1">{{ evento.consequencia || 'Não preenchida' }}</p>
+            <div class="p-2 rounded bg-gray-50/70 border border-gray-200">
+              <span class="font-bold text-gray-700 block text-[10px] uppercase">Consequência (Impacto)</span>
+              <p class="text-gray-900 mt-0.5 text-[11px]">{{ evento.consequencia || 'Não preenchida' }}</p>
             </div>
           </div>
-          <div class="p-2.5 bg-blue-50/60 rounded border border-blue-200 text-blue-950 text-xs">
-            <span class="font-bold block text-[11px] text-blue-900 mb-0.5">Declaração Integrada do Risco:</span>
+          <div class="p-2 bg-blue-50/60 rounded border border-blue-200 text-blue-950 text-[11px]">
+            <span class="font-bold block text-[10px] text-blue-900 mb-0.5">Declaração Integrada do Risco:</span>
             <em>"Devido a {{ evento.causa || '[Causa]' }}, pode ocorrer {{ evento.descricao_evento || '[Evento]' }}, resultando em {{ evento.consequencia || '[Consequência]' }}."</em>
           </div>
         </div>
       </div>
 
-      <!-- 3 e 4. Avaliação, Controles e Priorização 5x5 -->
-      <div class="bloco-impressao mb-4 border border-gray-300 rounded-lg overflow-hidden">
-        <div class="bg-gray-100 px-3 py-1.5 border-b border-gray-300 font-bold text-xs uppercase text-gray-800 flex justify-between">
-          <span>3 e 4. Avaliação, Controles Existentes e Matriz 5x5</span>
-          <span class="text-[11px] font-normal text-gray-600">Etapas 3 e 4</span>
+      <!-- 3 e 4. Avaliação e Controles Existentes -->
+      <div class="bloco-impressao mb-3 border border-gray-300 rounded-md">
+        <div class="bg-gray-100 px-3 py-1 border-b border-gray-300 font-bold text-xs uppercase text-gray-800 flex justify-between">
+          <span>3 e 4. Avaliação e Controles Existentes</span>
+          <span class="text-[10px] font-normal text-gray-600">Etapas 3 e 4</span>
         </div>
-        <div class="p-3 text-xs space-y-3">
+        <div class="p-2.5 text-xs space-y-2.5">
           <div class="grid grid-cols-4 gap-2 text-center">
-            <div class="p-2 bg-gray-50 rounded border border-gray-200">
-              <span class="text-[10px] uppercase text-gray-500 font-bold block">Probabilidade</span>
-              <span class="text-base font-extrabold text-gray-900">{{ avaliacao.probabilidade || '-' }}</span>
-              <span class="text-[10px] text-gray-600 block">{{ probabilidadeSelecionada?.rotulo || '' }}</span>
+            <div class="p-1.5 bg-gray-50/70 rounded border border-gray-200">
+              <span class="text-[9px] uppercase text-gray-500 font-bold block">Probabilidade</span>
+              <span class="text-sm font-extrabold text-gray-900">{{ avaliacao.probabilidade || '-' }}</span>
+              <span class="text-[9px] text-gray-600 block">{{ probabilidadeSelecionada?.rotulo || '' }}</span>
             </div>
-            <div class="p-2 bg-gray-50 rounded border border-gray-200">
-              <span class="text-[10px] uppercase text-gray-500 font-bold block">Impacto</span>
-              <span class="text-base font-extrabold text-gray-900">{{ avaliacao.impacto || '-' }}</span>
-              <span class="text-[10px] text-gray-600 block">{{ impactoSelecionado?.rotulo || '' }}</span>
+            <div class="p-1.5 bg-gray-50/70 rounded border border-gray-200">
+              <span class="text-[9px] uppercase text-gray-500 font-bold block">Impacto</span>
+              <span class="text-sm font-extrabold text-gray-900">{{ avaliacao.impacto || '-' }}</span>
+              <span class="text-[9px] text-gray-600 block">{{ impactoSelecionado?.rotulo || '' }}</span>
             </div>
-            <div class="p-2 bg-gray-50 rounded border border-gray-200">
-              <span class="text-[10px] uppercase text-gray-500 font-bold block">Risco Inerente</span>
-              <span class="text-base font-extrabold text-blue-900">{{ calculo.risco_inerente !== null ? calculo.risco_inerente : '-' }}</span>
-              <span class="text-[10px] text-gray-500 block">P × I</span>
+            <div class="p-1.5 bg-gray-50/70 rounded border border-gray-200">
+              <span class="text-[9px] uppercase text-gray-500 font-bold block">Risco Inerente</span>
+              <span class="text-sm font-extrabold text-blue-900">{{ calculo.risco_inerente !== null ? calculo.risco_inerente : '-' }}</span>
+              <span class="text-[9px] text-gray-500 block">P × I</span>
             </div>
-            <div class="p-2 bg-gray-50 rounded border border-gray-200">
-              <span class="text-[10px] uppercase text-gray-500 font-bold block">Controles / FNC</span>
-              <span class="text-base font-extrabold text-gray-900">{{ calculo.fator_mitigacao }}</span>
-              <span class="text-[10px] text-gray-600 block">{{ nivelControleSelecionado?.rotulo || 'Inexistente' }}</span>
+            <div class="p-1.5 bg-gray-50/70 rounded border border-gray-200">
+              <span class="text-[9px] uppercase text-gray-500 font-bold block">Controles / FNC</span>
+              <span class="text-sm font-extrabold text-gray-900">{{ calculo.fator_mitigacao }}</span>
+              <span class="text-[9px] text-gray-600 block truncate">{{ nivelControleSelecionado?.rotulo || 'Inexistente' }}</span>
             </div>
           </div>
 
-          <div class="p-3 rounded-lg border flex items-center justify-between"
+          <div class="p-2 rounded border flex items-center justify-between"
                :class="calculo.acima_apetite ? 'bg-rose-50 border-rose-300 text-rose-950' : 'bg-emerald-50 border-emerald-300 text-emerald-950'">
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider block">
+              <span class="text-[9px] font-bold uppercase tracking-wider block">
                 {{ calculo.acima_apetite ? '⚠️ ACIMA DO APETITE A RISCO (> 7,99)' : '🛡️ DENTRO DO APETITE A RISCO (≤ 7,99)' }}
               </span>
-              <p class="text-xs mt-0.5">
-                {{ calculo.acima_apetite ? 'Este risco ultrapassa a tolerância da organização e exige tratamento compulsório (5W2H e Contingência).' : 'Este risco está dentro da tolerância institucional. Tratamento complementar pode ser adotado voluntariamente.' }}
+              <p class="text-[11px] mt-0.5">
+                {{ calculo.acima_apetite ? 'Este risco ultrapassa a tolerância da organização e exige tratamento compulsório (Plano de Ação e Contingência).' : 'Este risco está dentro da tolerância institucional. Tratamento complementar pode ser adotado voluntariamente.' }}
               </p>
             </div>
-            <div class="text-right pl-4">
-              <span class="text-xs uppercase font-bold block">Risco Residual:</span>
-              <span class="text-2xl font-black">{{ calculo.risco_residual !== null ? calculo.risco_residual : '-' }}</span>
-              <span class="text-[10px] uppercase font-bold block">({{ calculo.classificacao }})</span>
+            <div class="text-right pl-3 shrink-0">
+              <span class="text-[10px] uppercase font-bold block">Risco Residual:</span>
+              <span class="text-xl font-black">{{ calculo.risco_residual !== null ? calculo.risco_residual : '-' }}</span>
+              <span class="text-[9px] uppercase font-bold block">({{ calculo.classificacao }})</span>
             </div>
           </div>
 
           <!-- Controles Internos Existentes -->
           <div>
-            <span class="font-bold text-gray-700 block mb-1">Controles Internos Existentes Registrados:</span>
-            <div v-if="avaliacao.controles.length === 0" class="text-gray-400 italic">
+            <span class="font-bold text-gray-700 block mb-0.5 text-[11px]">Controles Internos Existentes Registrados:</span>
+            <div v-if="avaliacao.controles.length === 0" class="text-gray-400 italic text-[11px]">
               Nenhum controle formal associado (Nível Inexistente / FNC 1.0).
             </div>
-            <ol v-else class="list-decimal pl-5 space-y-1 text-gray-800">
+            <ol v-else class="list-decimal pl-5 space-y-0.5 text-gray-800 text-[11px]">
               <li v-for="(c, cIdx) in avaliacao.controles" :key="cIdx">
                 {{ c.descricao_controle }}
               </li>
@@ -1212,38 +1261,38 @@
         </div>
       </div>
 
-      <!-- 5. Planos de Ação 5W2H e Contingência -->
-      <div class="bloco-impressao mb-4 border border-gray-300 rounded-lg overflow-hidden">
-        <div class="bg-gray-100 px-3 py-1.5 border-b border-gray-300 font-bold text-xs uppercase text-gray-800 flex justify-between">
-          <span>5. Tratamento, Planos de Ação (5W2H) e Contingência</span>
-          <span class="text-[11px] font-normal text-gray-600">Etapa 5</span>
+      <!-- 5. Planos de Ação e Contingência -->
+      <div class="bloco-impressao mb-3 border border-gray-300 rounded-md">
+        <div class="bg-gray-100 px-3 py-1 border-b border-gray-300 font-bold text-xs uppercase text-gray-800 flex justify-between">
+          <span>5. Tratamento, Planos de Ação e Contingência</span>
+          <span class="text-[10px] font-normal text-gray-600">Etapa 5</span>
         </div>
-        <div class="p-3 text-xs space-y-4">
-          <!-- Tabela 5W2H -->
+        <div class="p-2.5 text-xs space-y-3">
+          <!-- Tabela de Planos de Ação -->
           <div>
-            <h4 class="font-bold text-gray-800 uppercase text-[11px] mb-1.5">Planos de Ação (5W2H)</h4>
-            <div v-if="evento.planos_acao.length === 0" class="text-gray-400 italic bg-gray-50 p-2 rounded border">
-              Nenhum plano de ação 5W2H cadastrado.
+            <h4 class="font-bold text-gray-800 uppercase text-[11px] mb-1">Planos de Ação</h4>
+            <div v-if="evento.planos_acao.length === 0" class="text-gray-400 italic bg-gray-50 p-2 rounded border text-[11px]">
+              Nenhum plano de ação cadastrado.
             </div>
-            <table v-else class="w-full text-left border-collapse border border-gray-300 text-[11px]">
+            <table v-else class="w-full text-left border-collapse border border-gray-300 text-[10px] table-fixed">
               <thead>
                 <tr class="bg-gray-100 border-b border-gray-300">
-                  <th class="p-1.5 border-r border-gray-300 font-bold w-8 text-center">#</th>
-                  <th class="p-1.5 border-r border-gray-300 font-bold w-20">Tipo</th>
-                  <th class="p-1.5 border-r border-gray-300 font-bold">O que fazer? (What)</th>
-                  <th class="p-1.5 border-r border-gray-300 font-bold">Como? (How)</th>
-                  <th class="p-1.5 border-r border-gray-300 font-bold w-28">Quem?</th>
-                  <th class="p-1.5 font-bold w-24">Prazo</th>
+                  <th class="p-1 border-r border-gray-300 font-bold w-[5%] text-center">#</th>
+                  <th class="p-1 border-r border-gray-300 font-bold w-[15%]">Tipo</th>
+                  <th class="p-1 border-r border-gray-300 font-bold w-[32%]">O que fazer?</th>
+                  <th class="p-1 border-r border-gray-300 font-bold w-[26%]">Como?</th>
+                  <th class="p-1 border-r border-gray-300 font-bold w-[12%]">Quem?</th>
+                  <th class="p-1 font-bold w-[10%]">Prazo</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <tr v-for="(pa, paIdx) in evento.planos_acao" :key="paIdx">
-                  <td class="p-1.5 border-r border-gray-200 text-center font-bold">{{ paIdx + 1 }}</td>
-                  <td class="p-1.5 border-r border-gray-200 font-semibold">{{ pa.tipo_resposta }}</td>
-                  <td class="p-1.5 border-r border-gray-200">{{ pa.o_que }}</td>
-                  <td class="p-1.5 border-r border-gray-200">{{ pa.como }}</td>
-                  <td class="p-1.5 border-r border-gray-200">{{ pa.quem }}</td>
-                  <td class="p-1.5">{{ pa.data_inicio ? `${pa.data_inicio} até ${pa.data_termino}` : '-' }}</td>
+                  <td class="p-1 border-r border-gray-200 text-center font-bold">{{ paIdx + 1 }}</td>
+                  <td class="p-1 border-r border-gray-200 font-semibold">{{ pa.tipo_resposta }}</td>
+                  <td class="p-1 border-r border-gray-200">{{ pa.o_que }}</td>
+                  <td class="p-1 border-r border-gray-200">{{ pa.como }}</td>
+                  <td class="p-1 border-r border-gray-200">{{ pa.quem }}</td>
+                  <td class="p-1">{{ pa.data_inicio ? `${pa.data_inicio} até ${pa.data_termino}` : '-' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -1251,27 +1300,32 @@
 
           <!-- Tabela de Contingência -->
           <div>
-            <h4 class="font-bold text-gray-800 uppercase text-[11px] mb-1.5">Planos de Contingência</h4>
-            <div v-if="evento.planos_contingencia.length === 0" class="text-gray-400 italic bg-gray-50 p-2 rounded border">
+            <div class="flex items-center gap-2 mb-1">
+              <h4 class="font-bold text-gray-800 uppercase text-[11px]">Planos de Contingência</h4>
+              <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                OPCIONAL
+              </span>
+            </div>
+            <div v-if="evento.planos_contingencia.length === 0" class="text-gray-400 italic bg-gray-50 p-2 rounded border text-[11px]">
               Nenhum plano de contingência cadastrado.
             </div>
-            <table v-else class="w-full text-left border-collapse border border-gray-300 text-[11px]">
+            <table v-else class="w-full text-left border-collapse border border-gray-300 text-[10px] table-fixed">
               <thead>
                 <tr class="bg-gray-100 border-b border-gray-300">
-                  <th class="p-1.5 border-r border-gray-300 font-bold w-8 text-center">#</th>
-                  <th class="p-1.5 border-r border-gray-300 font-bold w-44">Gatilho (Trigger)</th>
-                  <th class="p-1.5 border-r border-gray-300 font-bold w-32">Responsável</th>
-                  <th class="p-1.5 border-r border-gray-300 font-bold">O que fazer?</th>
-                  <th class="p-1.5 font-bold">Como agir?</th>
+                  <th class="p-1 border-r border-gray-300 font-bold w-[5%] text-center">#</th>
+                  <th class="p-1 border-r border-gray-300 font-bold w-[28%]">Gatilho (Trigger)</th>
+                  <th class="p-1 border-r border-gray-300 font-bold w-[17%]">Responsável</th>
+                  <th class="p-1 border-r border-gray-300 font-bold w-[25%]">O que fazer?</th>
+                  <th class="p-1 font-bold w-[25%]">Como agir?</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <tr v-for="(pc, pcIdx) in evento.planos_contingencia" :key="pcIdx">
-                  <td class="p-1.5 border-r border-gray-200 text-center font-bold">{{ pcIdx + 1 }}</td>
-                  <td class="p-1.5 border-r border-gray-200 font-semibold text-rose-900">{{ pc.gatilho }}</td>
-                  <td class="p-1.5 border-r border-gray-200">{{ pc.responsavel }}</td>
-                  <td class="p-1.5 border-r border-gray-200">{{ pc.o_que }}</td>
-                  <td class="p-1.5">{{ pc.como }}</td>
+                  <td class="p-1 border-r border-gray-200 text-center font-bold">{{ pcIdx + 1 }}</td>
+                  <td class="p-1 border-r border-gray-200 font-semibold text-rose-900">{{ pc.gatilho }}</td>
+                  <td class="p-1 border-r border-gray-200">{{ pc.responsavel }}</td>
+                  <td class="p-1 border-r border-gray-200">{{ pc.o_que }}</td>
+                  <td class="p-1">{{ pc.como }}</td>
                 </tr>
               </tbody>
             </table>
@@ -1280,16 +1334,16 @@
       </div>
 
       <!-- Assinaturas e Homologação -->
-      <div class="bloco-impressao mt-6 pt-6 border-t border-gray-300 grid grid-cols-2 gap-12 text-center text-xs">
+      <div class="bloco-impressao mt-4 pt-4 border-t border-gray-300 grid grid-cols-2 gap-10 text-center text-xs">
         <div>
-          <div class="border-b border-gray-400 mb-2 pb-8"></div>
-          <p class="font-bold text-gray-800">Responsável pelo Mapeamento</p>
-          <p class="text-[11px] text-gray-500">{{ unidadeSelecionada ? unidadeSelecionada.nome : 'Gestor da Unidade Organizacional' }}</p>
+          <div class="border-b border-gray-400 mb-1 pb-6"></div>
+          <p class="font-bold text-gray-800 text-[11px]">Responsável pelo Mapeamento</p>
+          <p class="text-[10px] text-gray-500">{{ unidadeSelecionada ? unidadeSelecionada.nome : 'Gestor da Unidade Organizacional' }}</p>
         </div>
         <div>
-          <div class="border-b border-gray-400 mb-2 pb-8"></div>
-          <p class="font-bold text-gray-800">UGERC / Governança Institucional</p>
-          <p class="text-[11px] text-gray-500">Unidade de Gestão de Riscos e Controles Internos - HC-UFPE</p>
+          <div class="border-b border-gray-400 mb-1 pb-6"></div>
+          <p class="font-bold text-gray-800 text-[11px]">UGERC / Governança Institucional</p>
+          <p class="text-[10px] text-gray-500">Unidade de Gestão de Riscos e Controles Internos - HC-UFPE</p>
         </div>
       </div>
     </div>
@@ -1340,7 +1394,7 @@ const etapas = [
   { id: 1, nome: 'Contexto & Processo' },
   { id: 2, nome: 'Identificação' },
   { id: 3, nome: 'Avaliação & Controles' },
-  { id: 4, nome: 'Priorização 5x5' },
+  { id: 4, nome: 'Matriz de Riscos' },
   { id: 5, nome: 'Planos de Ação' }
 ];
 
@@ -1576,7 +1630,12 @@ const form = reactive({
   nome_projeto: '',
   pilar_estrategico_id: null as number | null,
   entrega_processo: '',
-  status: 'RASCUNHO'
+  status: 'RASCUNHO',
+  versao: 1,
+  tag_versao: 'v1.0 (Original)',
+  submetido_em: null as string | null,
+  criado_em: null as string | null,
+  criado_por: null as any
 });
 
 const categoriasRiscoGuia = [
@@ -1803,6 +1862,8 @@ function onNivelControleChange(novoNivel: string) {
 }
 
 
+
+
 function adicionarControle() {
   avaliacao.controles.push({ descricao_controle: '' });
   recalcular();
@@ -1931,6 +1992,59 @@ const etapa5Valida = computed(() => {
   return true;
 });
 
+const podeEditarFicha = ref(true);
+const snapshotOriginal = ref('');
+
+function formatarDataHora(dtStr?: string | null) {
+  if (!dtStr) return '-';
+  try {
+    const d = new Date(dtStr);
+    return d.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+  } catch {
+    return dtStr;
+  }
+}
+
+function gerarSnapshot() {
+  return JSON.stringify({
+    unidade_id: form.unidade_id,
+    processo_id: form.processo_id,
+    processo_outro: form.processo_outro?.trim() || '',
+    possui_projeto: form.possui_projeto,
+    nome_projeto: form.nome_projeto?.trim() || '',
+    pilar_estrategico_id: form.pilar_estrategico_id,
+    entrega_processo: form.entrega_processo?.trim() || '',
+    categoria: evento.categoria,
+    causa: evento.causa?.trim() || '',
+    descricao_evento: evento.descricao_evento?.trim() || '',
+    consequencia: evento.consequencia?.trim() || '',
+    probabilidade: avaliacao.probabilidade,
+    impacto: avaliacao.impacto,
+    nivel_controle: avaliacao.nivel_controle,
+    controles: avaliacao.controles.map(c => c.descricao_controle?.trim() || ''),
+    planos_acao: evento.planos_acao.map(pa => ({
+      tipo_resposta: pa.tipo_resposta,
+      o_que: pa.o_que?.trim() || '',
+      como: pa.como?.trim() || '',
+      quem: pa.quem?.trim() || '',
+      data_inicio: pa.data_inicio,
+      data_termino: pa.data_termino,
+      status: pa.status
+    })),
+    planos_contingencia: evento.planos_contingencia.map(pc => ({
+      gatilho: pc.gatilho?.trim() || '',
+      responsavel: pc.responsavel?.trim() || '',
+      o_que: pc.o_que?.trim() || '',
+      como: pc.como?.trim() || ''
+    }))
+  });
+}
+
+const formAlterado = computed(() => {
+  if (!snapshotOriginal.value) return false;
+  return snapshotOriginal.value !== gerarSnapshot();
+});
+
 const statusEtapas = computed<Record<number, boolean>>(() => ({
   1: etapa1Valida.value,
   2: etapa2Valida.value,
@@ -1943,12 +2057,42 @@ const podeSubmeter = computed(() => {
   return etapa1Valida.value && etapa2Valida.value && etapa3Valida.value && etapa4Valida.value && etapa5Valida.value;
 });
 
+const podeSubmeterBotao = computed(() => {
+  if (!podeEditarFicha.value) return false;
+  if (!podeSubmeter.value) return false;
+  // Ao editar uma ficha existente, o botão de submeter só fica disponível quando o usuário avança até a etapa 5
+  if (form.id && etapaAtual.value !== 5) {
+    return false;
+  }
+  // Se a ficha já estiver submetida, só reativa a opção de submissão se algum campo foi alterado
+  if (form.status === 'SUBMETIDO' && !formAlterado.value) {
+    return false;
+  }
+  return true;
+});
+
+const tooltipSubmeter = computed(() => {
+  if (!podeEditarFicha.value) {
+    return 'Modo Somente Leitura: apenas o gestor da unidade ou Administrador pode editar/submeter.';
+  }
+  if (form.id && etapaAtual.value !== 5) {
+    return 'Por segurança, avance até a Etapa 5 para revisar todas as etapas antes de submeter à UGERC.';
+  }
+  if (!podeSubmeter.value) {
+    return 'Preencha as etapas obrigatórias para habilitar: ' + textoPendencias.value;
+  }
+  if (form.status === 'SUBMETIDO' && !formAlterado.value) {
+    return 'Ficha já submetida. Para submeter uma nova versão à UGERC, altere ao menos um campo.';
+  }
+  return 'Submeter mapeamento à UGERC';
+});
+
 const textoPendencias = computed(() => {
   const p: string[] = [];
   if (!etapa1Valida.value) p.push('Etapa 1 (Contexto & Processo)');
   if (!etapa2Valida.value) p.push('Etapa 2 (Identificação do Risco)');
   if (!etapa3Valida.value) p.push('Etapa 3 (Avaliação & Controles)');
-  if (!etapa4Valida.value) p.push('Etapa 4 (Priorização 5x5 - avance a partir da etapa 3)');
+  if (!etapa4Valida.value) p.push('Etapa 4 (Matriz de Riscos - avance a partir da etapa 3)');
   if (!etapa5Valida.value) {
     const isAlto = calculo.classificacao === 'ALTO' || calculo.classificacao === 'EXTREMO';
     p.push(isAlto ? 'Etapa 5 (Plano de Ação 5W2H obrigatório para riscos altos/extremos)' : 'Etapa 5 (Planos de Ação)');
@@ -1979,12 +2123,15 @@ async function onUnidadeChange() {
 async function carregarAuxiliares() {
   try {
     const [resU, resPil] = await Promise.all([
-      api.get('/api/unidades'),
+      api.get('/api/unidades?apenas_mapeamento=true'),
       api.get('/api/processos/pilares-estrategicos')
     ]);
     unidades.value = resU.data;
     pilares.value = resPil.data;
-    if (form.unidade_id) {
+    // Se o usuário possui apenas 1 unidade disponível para mapear e for novo risco, auto-seleciona
+    if (!form.id && unidades.value.length === 1 && !form.unidade_id) {
+      await selecionarUnidade(unidades.value[0]);
+    } else if (form.unidade_id) {
       await carregarProcessos(form.unidade_id);
     }
   } catch (err) {
@@ -1998,6 +2145,13 @@ async function carregarMapeamento(id: number) {
     const data = res.data;
     form.id = data.id;
     form.unidade_id = data.unidade_id;
+    form.versao = data.versao || 1;
+    form.tag_versao = data.tag_versao || 'v1.0 (Original)';
+    form.submetido_em = data.submetido_em || null;
+    form.criado_em = data.criado_em || null;
+    form.criado_por = data.criado_por || null;
+    podeEditarFicha.value = (data.pode_editar !== false);
+
     if (data.unidade_id) {
       await carregarProcessos(data.unidade_id);
     }
@@ -2015,34 +2169,54 @@ async function carregarMapeamento(id: number) {
       evento.causa = ev.causa;
       evento.descricao_evento = ev.descricao_evento;
       evento.consequencia = ev.consequencia;
-      evento.planos_acao = ev.planos_acao || [];
-      evento.planos_contingencia = ev.planos_contingencia || [];
+      evento.planos_acao = ev.planos_acao ? JSON.parse(JSON.stringify(ev.planos_acao)) : [];
+      evento.planos_contingencia = ev.planos_contingencia ? JSON.parse(JSON.stringify(ev.planos_contingencia)) : [];
 
       if (ev.avaliacao) {
         avaliacao.probabilidade = ev.avaliacao.probabilidade;
         avaliacao.impacto = ev.avaliacao.impacto;
         avaliacao.nivel_controle = ev.avaliacao.nivel_controle || (ev.avaliacao.fator_mitigacao === 1.0 ? 'INEXISTENTE' : ev.avaliacao.fator_mitigacao === 0.8 ? 'FRACO' : ev.avaliacao.fator_mitigacao === 0.6 ? 'MEDIANO' : ev.avaliacao.fator_mitigacao === 0.4 ? 'SATISFATORIO' : 'FORTE');
-        avaliacao.controles = ev.avaliacao.controles || [];
+        avaliacao.controles = ev.avaliacao.controles ? JSON.parse(JSON.stringify(ev.avaliacao.controles)) : [];
         if (ev.avaliacao.probabilidade && ev.avaliacao.impacto) {
           etapa3Avancada.value = true;
         }
       }
       recalcular();
     }
+
+    nextTick(() => {
+      snapshotOriginal.value = gerarSnapshot();
+    });
   } catch (err) {
     console.error('Erro ao carregar mapeamento:', err);
   }
 }
 
 async function salvar(submeter: boolean) {
-  if (submeter && !podeSubmeter.value) {
-    alert('Atenção: Para submeter à UGERC é necessário que todas as 5 etapas estejam devidamente preenchidas.\n\nPendências encontradas:\n- ' + textoPendencias.value.split(', ').join('\n- '));
-    if (!etapa1Valida.value) etapaAtual.value = 1;
-    else if (!etapa2Valida.value) etapaAtual.value = 2;
-    else if (!etapa3Valida.value) etapaAtual.value = 3;
-    else if (!etapa4Valida.value) etapaAtual.value = 4;
-    else etapaAtual.value = 5;
+  if (!podeEditarFicha.value) {
+    alert('Esta ficha está em modo somente leitura para o seu usuário.');
     return;
+  }
+
+  if (submeter) {
+    if (!podeSubmeterBotao.value) {
+      if (form.id && etapaAtual.value !== 5) {
+        alert('Por segurança, ao editar uma ficha, você deve avançar até a Etapa 5 para revisar o mapeamento antes de submeter à UGERC.');
+        etapaAtual.value = 5;
+        return;
+      }
+      if (form.status === 'SUBMETIDO' && !formAlterado.value) {
+        alert('Esta ficha já foi submetida à UGERC. Para submeter uma nova versão, faça alguma alteração nos campos.');
+        return;
+      }
+      alert('Atenção: Para submeter à UGERC é necessário que todas as 5 etapas estejam devidamente preenchidas.\n\nPendências encontradas:\n- ' + textoPendencias.value.split(', ').join('\n- '));
+      if (!etapa1Valida.value) etapaAtual.value = 1;
+      else if (!etapa2Valida.value) etapaAtual.value = 2;
+      else if (!etapa3Valida.value) etapaAtual.value = 3;
+      else if (!etapa4Valida.value) etapaAtual.value = 4;
+      else etapaAtual.value = 5;
+      return;
+    }
   }
 
   if (!form.unidade_id) {
@@ -2051,12 +2225,7 @@ async function salvar(submeter: boolean) {
     return;
   }
 
-  if (submeter) {
-    form.status = 'SUBMETIDO';
-  } else {
-    form.status = 'RASCUNHO';
-  }
-
+  const novoStatus = submeter ? 'SUBMETIDO' : 'RASCUNHO';
 
   salvando.value = true;
   try {
@@ -2069,7 +2238,7 @@ async function salvar(submeter: boolean) {
       nome_projeto: form.nome_projeto,
       pilar_estrategico_id: form.pilar_estrategico_id,
       entrega_processo: form.entrega_processo,
-      status: form.status,
+      status: novoStatus,
       eventos: [
         {
           categoria: evento.categoria,
@@ -2092,8 +2261,17 @@ async function salvar(submeter: boolean) {
 
     const res = await api.post('/api/riscos', payload);
     form.id = res.data.id;
+    form.status = res.data.status;
+    if (res.data.versao) form.versao = res.data.versao;
+    if (res.data.tag_versao) form.tag_versao = res.data.tag_versao;
+    if (res.data.submetido_em) form.submetido_em = res.data.submetido_em;
+    if (res.data.criado_em) form.criado_em = res.data.criado_em;
+    if (res.data.criado_por) form.criado_por = res.data.criado_por;
+
+    snapshotOriginal.value = gerarSnapshot();
+
     if (submeter) {
-      alert('Mapeamento submetido à UGERC com sucesso!');
+      alert(`Mapeamento submetido à UGERC com sucesso! [${form.tag_versao}]`);
       router.push('/riscos/mapeados');
     } else {
       feedbackMensagem.value = 'Rascunho salvo com sucesso! Você permanece na mesma página para continuar preenchendo.';
@@ -2163,7 +2341,11 @@ onUnmounted(() => {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 1.2cm 1cm;
+    margin: 8mm 7mm;
+  }
+
+  *, *:before, *:after {
+    box-sizing: border-box !important;
   }
 
   html, body {
@@ -2172,8 +2354,11 @@ onUnmounted(() => {
     height: auto !important;
     min-height: auto !important;
     overflow: visible !important;
-    font-size: 10pt;
-    line-height: 1.35;
+    font-size: 9.5pt;
+    line-height: 1.3;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .print\:hidden {
@@ -2184,23 +2369,36 @@ onUnmounted(() => {
     display: block !important;
     position: static !important;
     width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
+    box-sizing: border-box !important;
   }
 
   .bloco-impressao {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+    box-sizing: border-box !important;
+    margin-bottom: 10px !important;
   }
 
   table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    box-sizing: border-box !important;
     page-break-inside: auto;
+    word-break: break-word !important;
   }
 
   tr {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+  }
+
+  td, th {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
   }
 }
 </style>

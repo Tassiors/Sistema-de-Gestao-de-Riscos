@@ -92,7 +92,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 1.2cm 1cm;
+    margin: 8mm 7mm !important;
   }
 
   html, body, #app {

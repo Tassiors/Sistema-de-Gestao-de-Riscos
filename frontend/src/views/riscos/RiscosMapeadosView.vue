@@ -1,7 +1,9 @@
 <template>
-  <div class="space-y-6">
-    <!-- Header com Título e Ação Principal -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+  <div>
+    <!-- Conteúdo Visual da Tela (Oculto estritamente durante a impressão da Ficha) -->
+    <div class="space-y-6 print:hidden">
+      <!-- Header com Título e Ação Principal -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
       <div>
         <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
           <span>📋</span>
@@ -78,8 +80,6 @@
             <option :value="null">Todos os Status</option>
             <option value="RASCUNHO">Rascunho</option>
             <option value="SUBMETIDO">Submetido para UGERC</option>
-            <option value="EM_MONITORAMENTO">Em Monitoramento</option>
-            <option value="HOMOLOGADO">Homologado</option>
           </select>
         </div>
 
@@ -112,12 +112,65 @@
 
     <!-- Tabela de Fichas de Riscos Mapeados -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50/70">
+      <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50/70">
         <div>
-          <h3 class="text-sm font-bold text-gray-900">Fichas Cadastradas</h3>
-          <p class="text-[11px] text-gray-500">
+          <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+            <span>📋</span>
+            <span>Fichas Cadastradas</span>
+            <span class="text-xs font-normal text-gray-500">
+              ({{ mapeamentosFiltrados.length }} exibida{{ mapeamentosFiltrados.length === 1 ? '' : 's' }})
+            </span>
+          </h3>
+          <p class="text-[11px] text-gray-500 mt-0.5">
             Permissões ativas: Administradores possuem acesso pleno; Gestores gerenciam apenas fichas do seu setor principal; Chefias superiores possuem permissão de visualização.
           </p>
+        </div>
+
+        <!-- Indicador e Botões de Ação em Lote no Cabeçalho do Card -->
+        <div v-if="selecionadosIds.length > 0" class="flex items-center gap-2 bg-blue-50/80 border border-blue-200 px-3.5 py-1.5 rounded-lg text-xs animate-fade-in shrink-0 flex-wrap">
+          <span class="font-bold text-blue-900 flex items-center gap-1.5">
+            <span class="w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-black">
+              {{ selecionadosIds.length }}
+            </span>
+            <span>selecionada(s)</span>
+          </span>
+
+          <!-- Botão Imprimir em Lote -->
+          <button
+            @click="imprimirEmLote"
+            :disabled="imprimindoLote"
+            type="button"
+            class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow-xs transition flex items-center gap-1 cursor-pointer disabled:opacity-50"
+            title="Imprimir fichas selecionadas em formato A4"
+          >
+            <span v-if="!imprimindoLote">🖨️ Imprimir Selecionadas ({{ selecionadosIds.length }})</span>
+            <span v-else class="inline-flex items-center gap-1">
+              <span class="animate-spin">⏳</span> Gerando impressão...
+            </span>
+          </button>
+
+          <!-- Botão Excluir em Lote -->
+          <button
+            v-if="selecionadosExcluiveis.length > 0"
+            @click="confirmarExclusaoLote"
+            :disabled="excluindoLote"
+            type="button"
+            class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded shadow-xs transition flex items-center gap-1 cursor-pointer disabled:opacity-50"
+            :title="'Excluir as ' + selecionadosExcluiveis.length + ' fichas com permissão'"
+          >
+            <span v-if="!excluindoLote">🗑️ Excluir ({{ selecionadosExcluiveis.length }})</span>
+            <span v-else class="inline-flex items-center gap-1">
+              <span class="animate-spin">⏳</span> Excluindo...
+            </span>
+          </button>
+
+          <button
+            @click="desmarcarTodos"
+            type="button"
+            class="text-gray-600 hover:text-gray-900 font-semibold underline text-[11px] cursor-pointer ml-1"
+          >
+            Desmarcar
+          </button>
         </div>
       </div>
 
@@ -125,33 +178,73 @@
         <table class="min-w-full divide-y divide-gray-200 text-left text-xs">
           <thead class="bg-gray-100/80 text-gray-700 font-semibold uppercase tracking-wider text-[11px]">
             <tr>
+              <th class="py-3 px-3 text-center w-10">
+                <input
+                  type="checkbox"
+                  :checked="todosSelecionados"
+                  :indeterminate.prop="algunsSelecionados"
+                  :disabled="mapeamentosFiltrados.length === 0"
+                  @change="alternarSelecionarTodos"
+                  class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  title="Selecionar / Desmarcar todas as fichas visíveis"
+                />
+              </th>
               <th class="py-3 px-4">Setor / Unidade</th>
               <th class="py-3 px-4">Processo</th>
               <th class="py-3 px-4">Evento de Risco</th>
               <th class="py-3 px-4 text-center">Residual</th>
               <th class="py-3 px-4 text-center">Severidade</th>
               <th class="py-3 px-4 text-center">Status</th>
-              <th class="py-3 px-4 text-right">Ações</th>
+              <th class="py-3 px-4 text-center">Ações</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr v-if="carregando">
-              <td colspan="7" class="py-12 text-center text-gray-400">
+              <td colspan="8" class="py-12 text-center text-gray-400">
                 <span class="inline-block animate-spin mr-2">⏳</span> Carregando fichas de riscos...
               </td>
             </tr>
             <tr v-else-if="mapeamentosFiltrados.length === 0">
-              <td colspan="7" class="py-12 text-center text-gray-400">
+              <td colspan="8" class="py-12 text-center text-gray-400">
                 <div class="text-3xl mb-2">🔍</div>
                 <p class="text-sm font-semibold text-gray-600">Nenhum mapeamento de risco encontrado.</p>
                 <p class="text-xs text-gray-400 mt-1">Tente ajustar os filtros acima ou registre um novo mapeamento.</p>
               </td>
             </tr>
-            <tr v-for="m in mapeamentosFiltrados" :key="m.id" class="hover:bg-blue-50/40 transition">
+            <tr 
+              v-for="m in mapeamentosFiltrados" 
+              :key="m.id" 
+              class="transition"
+              :class="selecionadosIds.includes(m.id) ? 'bg-blue-50/70' : 'hover:bg-blue-50/40'"
+            >
+              <!-- Checkbox de Seleção Individual -->
+              <td class="py-3.5 px-3 text-center w-10">
+                <input
+                  type="checkbox"
+                  :value="m.id"
+                  v-model="selecionadosIds"
+                  class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                  :title="'Selecionar ficha #' + m.id + (m.pode_excluir ? '' : ' (somente leitura para exclusão)')"
+                />
+              </td>
+
               <!-- Setor / Unidade -->
               <td class="py-3.5 px-4 font-medium text-gray-900 max-w-xs">
-                <div class="font-bold text-gray-900">{{ m.unidade?.nome }}</div>
-                <span class="text-[10px] text-gray-400 font-mono">Ficha #{{ m.id }}</span>
+                <div class="font-bold text-gray-900">
+                  <span>{{ m.unidade?.nome }}</span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                  <span class="text-[10px] text-gray-400 font-mono">Ficha #{{ m.id }}</span>
+                  <span v-if="m.tag_versao" class="text-[10px] font-bold px-1.5 py-0.5 rounded border bg-purple-50 text-purple-700 border-purple-200">
+                    {{ m.tag_versao }}
+                  </span>
+                </div>
+                <div v-if="m.criado_por || m.submetido_em" class="text-[10px] text-gray-500 mt-1 leading-tight">
+                  <span v-if="m.criado_por" class="block">Criado por: {{ m.criado_por.nome || m.criado_por.username }}</span>
+                  <span v-if="m.submetido_em" class="text-blue-700 font-medium block">
+                    Submetido em: {{ new Date(m.submetido_em).toLocaleDateString('pt-BR') }}
+                  </span>
+                </div>
               </td>
 
               <!-- Processo e Projeto -->
@@ -208,12 +301,12 @@
               </td>
 
               <!-- Ações -->
-              <td class="py-3.5 px-4 text-right space-x-2 whitespace-nowrap">
+              <td class="py-3.5 px-4 text-center whitespace-nowrap">
                 <!-- Se pode editar: link de Edição -->
                 <router-link 
                   v-if="m.pode_editar"
                   :to="'/riscos/' + m.id + '/editar'"
-                  class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold text-xs px-2 py-1 rounded hover:bg-blue-50 transition"
+                  class="inline-flex items-center text-blue-600 hover:text-blue-800 font-bold text-xs px-2.5 py-1 rounded hover:bg-blue-50 transition"
                   title="Editar ficha de risco"
                 >
                   Editar
@@ -223,37 +316,93 @@
                 <router-link 
                   v-else
                   :to="'/riscos/' + m.id + '/editar'"
-                  class="inline-flex items-center text-gray-600 hover:text-gray-800 font-semibold text-xs px-2 py-1 rounded hover:bg-gray-100 transition"
+                  class="inline-flex items-center text-gray-600 hover:text-gray-800 font-medium text-xs px-2.5 py-1 rounded hover:bg-gray-100 transition"
                   title="Visualizar ficha de risco (somente leitura)"
                 >
                   Visualizar
                 </router-link>
-
-                <!-- Botão Excluir -->
-                <button
-                  v-if="m.pode_excluir"
-                  @click="excluirFicha(m)"
-                  type="button"
-                  class="inline-flex items-center text-rose-600 hover:text-rose-800 font-semibold text-xs px-2 py-1 rounded hover:bg-rose-50 transition cursor-pointer"
-                  title="Excluir ficha de risco"
-                >
-                  Excluir
-                </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+
+    <!-- Barra Flutuante de Ações em Lote Fixa na Base da Tela (visível quando há seleção) -->
+    <div 
+      v-if="selecionadosIds.length > 0"
+      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-gray-900/95 backdrop-blur text-white px-5 py-3 rounded-2xl shadow-2xl border border-gray-700 flex items-center gap-4 animate-fade-in flex-wrap justify-center"
+    >
+      <div class="flex items-center gap-2">
+        <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-black shadow-xs">
+          {{ selecionadosIds.length }}
+        </span>
+        <span class="text-xs font-semibold whitespace-nowrap">
+          {{ selecionadosIds.length === 1 ? '1 ficha selecionada' : `${selecionadosIds.length} fichas selecionadas` }}
+        </span>
+      </div>
+
+      <div class="h-4 w-px bg-gray-700 hidden sm:block"></div>
+
+      <div class="flex items-center gap-2">
+        <!-- Botão Imprimir em Lote -->
+        <button
+          @click="imprimirEmLote"
+          :disabled="imprimindoLote"
+          type="button"
+          class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+          title="Imprimir fichas selecionadas em formato A4"
+        >
+          <span v-if="!imprimindoLote">🖨️ Imprimir Selecionadas ({{ selecionadosIds.length }})</span>
+          <span v-else class="inline-flex items-center gap-1">
+            <span class="animate-spin">⏳</span> Gerando impressão...
+          </span>
+        </button>
+
+        <!-- Botão Excluir em Lote -->
+        <button
+          v-if="selecionadosExcluiveis.length > 0"
+          @click="confirmarExclusaoLote"
+          :disabled="excluindoLote"
+          type="button"
+          class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+          :title="'Excluir as ' + selecionadosExcluiveis.length + ' fichas com permissão'"
+        >
+          <span v-if="!excluindoLote">🗑️ Excluir ({{ selecionadosExcluiveis.length }})</span>
+          <span v-else class="inline-flex items-center gap-1">
+            <span class="animate-spin">⏳</span> Excluindo...
+          </span>
+        </button>
+
+        <button
+          @click="desmarcarTodos"
+          type="button"
+          class="px-2.5 py-1.5 text-xs text-gray-300 hover:text-white transition cursor-pointer"
+        >
+          Desmarcar
+        </button>
+      </div>
+    </div>
   </div>
+
+  <!-- Componente de Impressão A4 Oculto em tela e Ativo no Print -->
+  <FichaImpressaoA4 :fichas="fichasParaImpressaoLote" />
+</div>
+
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import api from '../../services/api';
+import FichaImpressaoA4 from '../../components/riscos/FichaImpressaoA4.vue';
 
 const mapeamentos = ref<any[]>([]);
 const carregando = ref(false);
+const fichasParaImpressaoLote = ref<any[]>([]);
+const imprimindoLote = ref(false);
+
+const selecionadosIds = ref<number[]>([]);
+const excluindoLote = ref(false);
 
 const filtroTextoUnidade = ref('');
 const filtroStatus = ref<string | null>(null);
@@ -286,12 +435,42 @@ const mapeamentosFiltrados = computed(() => {
       const proc = normalizarTexto(m.processo?.nome || m.processo_outro || '');
       const proj = normalizarTexto(m.nome_projeto || '');
       const evDesc = normalizarTexto(m.eventos?.[0]?.descricao_evento || '');
-      return proc.includes(qGeral) || proj.includes(qGeral) || evDesc.includes(qGeral);
+      const nomeU = normalizarTexto(m.unidade?.nome || '');
+      const siglaU = normalizarTexto(m.unidade?.sigla || '');
+      return proc.includes(qGeral) || proj.includes(qGeral) || evDesc.includes(qGeral) || nomeU.includes(qGeral) || siglaU.includes(qGeral);
     });
   }
 
   return lista;
 });
+
+const selecionadosExcluiveis = computed(() => {
+  const permitidosIds = new Set(mapeamentos.value.filter(m => m.pode_excluir).map(m => m.id));
+  return selecionadosIds.value.filter(id => permitidosIds.has(id));
+});
+
+const todosSelecionados = computed(() => {
+  const visiveis = mapeamentosFiltrados.value;
+  return visiveis.length > 0 && visiveis.every((m: any) => selecionadosIds.value.includes(m.id));
+});
+
+const algunsSelecionados = computed(() => {
+  const visiveis = mapeamentosFiltrados.value;
+  const marcados = visiveis.filter((m: any) => selecionadosIds.value.includes(m.id)).length;
+  return marcados > 0 && marcados < visiveis.length;
+});
+
+function alternarSelecionarTodos() {
+  if (todosSelecionados.value) {
+    selecionadosIds.value = [];
+  } else {
+    selecionadosIds.value = mapeamentosFiltrados.value.map((m: any) => m.id);
+  }
+}
+
+function desmarcarTodos() {
+  selecionadosIds.value = [];
+}
 
 function getClassificacaoBadge(classif: string) {
   switch (classif) {
@@ -313,6 +492,7 @@ function getStatusBadge(st: string) {
 
 async function carregarMapeamentos() {
   carregando.value = true;
+  selecionadosIds.value = [];
   try {
     const params: any = {};
     if (filtroStatus.value) params.status = filtroStatus.value;
@@ -325,23 +505,53 @@ async function carregarMapeamentos() {
   }
 }
 
-async function excluirFicha(m: any) {
+async function imprimirEmLote() {
+  if (selecionadosIds.value.length === 0) return;
+  try {
+    imprimindoLote.value = true;
+    const res = await api.post('/api/riscos/detalhes-lote', { ids: selecionadosIds.value });
+    fichasParaImpressaoLote.value = res.data;
+    await nextTick();
+    setTimeout(() => {
+      window.print();
+      imprimindoLote.value = false;
+    }, 200);
+  } catch (err: any) {
+    console.error('Erro ao obter fichas em lote para impressão:', err);
+    alert(err.response?.data?.detail || 'Erro ao carregar dados das fichas em lote para impressão.');
+    imprimindoLote.value = false;
+  }
+}
+
+async function confirmarExclusaoLote() {
+  const idsParaExcluir = selecionadosExcluiveis.value;
+  const qtd = idsParaExcluir.length;
+  if (qtd === 0) {
+    alert('Nenhuma das fichas selecionadas possui permissão para exclusão pelo seu usuário.');
+    return;
+  }
+
   const confirmou = confirm(
-    `Tem certeza que deseja excluir permanentemente a ficha de risco #${m.id} (${m.processo_outro || m.processo?.nome || 'Processo'})? Esta ação não pode ser desfeita.`
+    `ATENÇÃO: Você está prestes a excluir permanentemente ${qtd} ficha(s) de risco selecionada(s).\n\nTodos os eventos de risco, avaliações da Matriz de Riscos, controles internos e planos associados serão removidos do sistema.\n\nDeseja realmente continuar? Esta ação NÃO pode ser desfeita.`
   );
   if (!confirmou) return;
 
   try {
-    await api.delete(`/api/riscos/${m.id}`);
-    alert('Ficha de risco excluída com sucesso!');
+    excluindoLote.value = true;
+    const res = await api.post('/api/riscos/excluir-lote', { ids: idsParaExcluir });
+    alert(res.data.message || `${qtd} ficha(s) de risco excluída(s) com sucesso.`);
+    selecionadosIds.value = [];
     await carregarMapeamentos();
   } catch (err: any) {
-    console.error('Erro ao excluir ficha:', err);
-    alert(err.response?.data?.detail || 'Erro ao excluir ficha de risco.');
+    console.error('Erro ao excluir fichas em lote:', err);
+    alert(err.response?.data?.detail || 'Erro ao excluir fichas selecionadas em lote.');
+  } finally {
+    excluindoLote.value = false;
   }
 }
 
 function limparFiltros() {
+  selecionadosIds.value = [];
   filtroTextoUnidade.value = '';
   filtroStatus.value = null;
   filtroTextoGeral.value = '';

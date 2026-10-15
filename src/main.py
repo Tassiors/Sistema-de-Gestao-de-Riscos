@@ -31,6 +31,21 @@ async def lifespan(app: FastAPI):
             await conn.execute(text("ALTER TABLE avaliacoes_risco ADD COLUMN nivel_controle VARCHAR(50) DEFAULT 'INEXISTENTE'"))
         except Exception:
             pass
+        try:
+            from sqlalchemy import text
+            await conn.execute(text("ALTER TABLE mapeamentos_risco ADD COLUMN versao INTEGER DEFAULT 1"))
+        except Exception:
+            pass
+        try:
+            from sqlalchemy import text
+            await conn.execute(text("ALTER TABLE mapeamentos_risco ADD COLUMN tag_versao VARCHAR(50) DEFAULT 'v1.0 (Original)'"))
+        except Exception:
+            pass
+        try:
+            from sqlalchemy import text
+            await conn.execute(text("ALTER TABLE mapeamentos_risco ADD COLUMN submetido_em TIMESTAMP"))
+        except Exception:
+            pass
     print("App SQLite tables checked/created.")
 
     yield
