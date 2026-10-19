@@ -325,7 +325,7 @@ const zonasOrdenadas = computed(() => {
       chave: 'ALTO',
       nome: 'Zona Alto',
       intervalo: 'Score 8 a 14',
-      descricaoApetite: 'Acima do apetite (5W2H)',
+      descricaoApetite: 'Acima do apetite (Plano de Ação)',
       total: totaisPorZona.value.ALTO,
       percentual: calPct(totaisPorZona.value.ALTO),
       corPonto: 'bg-orange-500',

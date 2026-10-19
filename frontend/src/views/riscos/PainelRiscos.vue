@@ -5,10 +5,10 @@
       <div>
         <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
           <span>📊</span>
-          <span>Painel Geral de Gestão de Riscos</span>
+          <span>SIGER — Painel Geral de Gestão de Riscos</span>
         </h2>
         <p class="text-xs text-gray-500 mt-1">
-          Acompanhamento estratégico dos riscos mapeados, severidade, Matriz de Riscos e planos de ação.
+          Acompanhamento estratégico dos riscos mapeados, severidade, Matriz de Riscos e planos de ação no HC-UFPE.
         </p>
       </div>
 
@@ -199,78 +199,68 @@
               : 'border-gray-200 hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5'
           ]"
         >
-          <!-- Indicador de Seleção Ativa -->
-          <div v-if="unidadeSelecionadaId === ger.id" class="absolute top-2 right-2">
-            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-600 text-white">
-              Ativo
-            </span>
-          </div>
-
-          <!-- Cabeçalho do Card da Gerência -->
-          <div class="flex items-center gap-2 mb-3">
-            <span 
-              class="px-2 py-0.5 rounded-md text-xs font-black tracking-wide font-mono"
-              :class="getGerenciaBadgeStyle(ger.sigla)"
-            >
-              {{ ger.sigla }}
-            </span>
-            <div class="truncate">
-              <span class="text-xs font-bold text-gray-800 block truncate" :title="ger.nome">
+          <!-- Cabeçalho do Card da Gerência: Sigla, Nome e Botão de Detalhes (i) -->
+          <div class="flex items-center justify-between gap-2 mb-2.5">
+            <div class="flex items-center gap-2 min-w-0">
+              <span 
+                class="px-2 py-0.5 rounded-md text-xs font-black tracking-wide font-mono shrink-0"
+                :class="getGerenciaBadgeStyle(ger.sigla)"
+              >
+                {{ ger.sigla }}
+              </span>
+              <span class="text-xs font-bold text-gray-800 truncate" :title="ger.nome">
                 {{ ger.nome }}
               </span>
             </div>
-          </div>
 
-          <!-- Total Mapeados (Submetidos) -->
-          <div class="mb-2">
-            <span class="text-[11px] font-semibold text-gray-400 block uppercase tracking-wider">Total Mapeados</span>
-            <span class="text-2xl font-black text-gray-900 mt-0.5 block tracking-tight">
-              {{ ger.total || 0 }}
-            </span>
-          </div>
-
-          <!-- Cobertura da Gerência e Botão de Infocard (i) -->
-          <div class="mb-3.5 pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
-            <div class="flex items-center gap-1.5 text-gray-600">
-              <span class="font-medium text-gray-600">Cobertura:</span>
-              <span class="font-bold text-gray-900">
-                {{ ger.unidades_com_risco || 0 }}/{{ ger.total_unidades || 0 }} unidades 
-                <span class="text-blue-700 font-extrabold">({{ ger.percentual_mapeado || 0 }}%)</span>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span v-if="unidadeSelecionadaId === ger.id" class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-600 text-white">
+                Ativo
               </span>
+              <button
+                type="button"
+                @click.stop="abrirInfocardGerencia(ger)"
+                class="w-5 h-5 rounded-full bg-gray-50 hover:bg-blue-50 text-gray-400 hover:text-blue-600 border border-gray-200 hover:border-blue-300 transition flex items-center justify-center cursor-pointer shadow-2xs"
+                title="Ver relação de unidades subordinadas desta gerência"
+              >
+                <svg class="w-3.5 h-3.5 text-current group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
             </div>
-            <button
-              type="button"
-              @click.stop="abrirInfocardGerencia(ger)"
-              class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-800 border border-blue-200 transition shadow-2xs group cursor-pointer"
-              title="Ver relação de unidades subordinadas desta gerência"
-            >
-              <svg class="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
           </div>
 
-          <!-- Grid dos 4 Níveis de Severidade Residual -->
-          <div class="grid grid-cols-4 gap-1.5 pt-3 border-t border-gray-100 text-center">
-            <!-- Baixo -->
-            <div class="bg-emerald-50/70 border border-emerald-100 rounded-lg p-1.5">
-              <span class="text-[9px] font-bold text-emerald-700 block uppercase">Baixo</span>
-              <span class="text-xs font-extrabold text-emerald-800 block mt-0.5">{{ ger.baixo || 0 }}</span>
+          <!-- Total Mapeados e Cobertura Integrados em uma única linha fluida -->
+          <div class="flex items-baseline justify-between mb-3">
+            <div>
+              <span class="text-2xl font-black text-gray-900 tracking-tight">{{ ger.total || 0 }}</span>
+              <span class="text-xs font-medium text-gray-400 ml-1.5">{{ (ger.total || 0) === 1 ? 'risco' : 'riscos' }}</span>
             </div>
-            <!-- Médio -->
-            <div class="bg-amber-50/70 border border-amber-100 rounded-lg p-1.5">
-              <span class="text-[9px] font-bold text-amber-700 block uppercase">Médio</span>
-              <span class="text-xs font-extrabold text-amber-800 block mt-0.5">{{ ger.medio || 0 }}</span>
+            <div class="text-right text-xs">
+              <span class="text-gray-500 font-medium">
+                Cobertura: <strong class="text-gray-900">{{ ger.unidades_com_risco || 0 }}/{{ ger.total_unidades || 0 }}</strong>
+              </span>
+              <span class="text-[10px] text-blue-700 font-bold ml-1">({{ ger.percentual_mapeado || 0 }}%)</span>
             </div>
-            <!-- Alto -->
-            <div class="bg-orange-50/70 border border-orange-100 rounded-lg p-1.5">
-              <span class="text-[9px] font-bold text-orange-700 block uppercase">Alto</span>
-              <span class="text-xs font-extrabold text-orange-800 block mt-0.5">{{ ger.alto || 0 }}</span>
+          </div>
+
+          <!-- Distribuição por Severidade: Pílulas limpas sem bordas pesadas -->
+          <div class="grid grid-cols-4 gap-1.5 pt-2.5 border-t border-gray-100 text-center">
+            <div class="bg-emerald-50/70 rounded-lg py-1 px-0.5">
+              <span class="text-[9px] font-semibold text-emerald-700 block">Baixo</span>
+              <span class="text-xs font-black text-emerald-900 block">{{ ger.baixo || 0 }}</span>
             </div>
-            <!-- Extremo -->
-            <div class="bg-rose-50/70 border border-rose-100 rounded-lg p-1.5">
-              <span class="text-[9px] font-bold text-rose-700 block uppercase">Extremo</span>
-              <span class="text-xs font-extrabold text-rose-800 block mt-0.5">{{ ger.extremo || 0 }}</span>
+            <div class="bg-amber-50/70 rounded-lg py-1 px-0.5">
+              <span class="text-[9px] font-semibold text-amber-700 block">Médio</span>
+              <span class="text-xs font-black text-amber-900 block">{{ ger.medio || 0 }}</span>
+            </div>
+            <div class="bg-orange-50/70 rounded-lg py-1 px-0.5">
+              <span class="text-[9px] font-semibold text-orange-700 block">Alto</span>
+              <span class="text-xs font-black text-orange-900 block">{{ ger.alto || 0 }}</span>
+            </div>
+            <div class="bg-rose-50/70 rounded-lg py-1 px-0.5">
+              <span class="text-[9px] font-semibold text-rose-700 block">Extremo</span>
+              <span class="text-xs font-black text-rose-900 block">{{ ger.extremo || 0 }}</span>
             </div>
           </div>
         </div>
@@ -296,7 +286,7 @@
           <div class="mt-4 p-3.5 bg-blue-50/70 rounded-xl border border-blue-100 text-xs space-y-2">
             <span class="font-bold text-blue-900 block">Tolerância Institucional</span>
             <p class="text-[11px] text-blue-800 leading-relaxed">
-              Riscos com resultado residual <strong>superior a 7,99</strong> (Alto ou Extremo) excedem o apetite institucional e exigem obrigatoriamente a elaboração de Planos de Ação 5W2H e Planos de Contingência.
+              Riscos com resultado residual <strong>superior a 7,99</strong> (Alto ou Extremo) excedem o apetite institucional e exigem obrigatoriamente a elaboração de Planos de Ação e Planos de Contingência.
             </p>
           </div>
 

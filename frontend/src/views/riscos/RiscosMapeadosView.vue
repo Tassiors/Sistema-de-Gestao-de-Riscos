@@ -262,15 +262,28 @@
 
               <!-- Evento de Risco -->
               <td class="py-3.5 px-4 text-gray-700 max-w-md">
-                <div v-if="m.eventos && m.eventos.length > 0">
-                  <p class="line-clamp-2 leading-relaxed" :title="m.eventos[0].descricao_evento">
-                    {{ m.eventos[0].descricao_evento }}
-                  </p>
-                  <span class="text-[10px] text-gray-400 mt-0.5 inline-block font-medium">
-                    Categoria: {{ m.eventos[0].categoria }}
+                <div v-if="m.eventos && m.eventos.length > 0" class="space-y-2.5">
+                  <div 
+                    v-for="(ev, evIdx) in m.eventos" 
+                    :key="ev.id || evIdx" 
+                    :class="{ 'pt-2.5 border-t border-gray-100': evIdx > 0 }"
+                  >
+                    <p class="line-clamp-2 leading-relaxed font-semibold text-gray-900 flex items-start gap-1.5" :title="ev.descricao_evento">
+                      <span class="text-blue-600 text-xs shrink-0 mt-0.5">📋</span>
+                      <span>{{ ev.descricao_evento }}</span>
+                    </p>
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                      <span class="text-[10px] text-gray-600 font-medium bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
+                        Categoria: {{ ev.categoria }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <span class="text-gray-400 italic text-xs block py-1">
+                    Sem eventos cadastrados
                   </span>
                 </div>
-                <span v-else class="text-gray-400 italic">Sem eventos cadastrados</span>
               </td>
 
               <!-- Risco Residual -->
@@ -302,25 +315,49 @@
 
               <!-- Ações -->
               <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                <!-- Se pode editar: link de Edição -->
-                <router-link 
-                  v-if="m.pode_editar"
-                  :to="'/riscos/' + m.id + '/editar'"
-                  class="inline-flex items-center text-blue-600 hover:text-blue-800 font-bold text-xs px-2.5 py-1 rounded hover:bg-blue-50 transition"
-                  title="Editar ficha de risco"
-                >
-                  Editar
-                </router-link>
+                <div class="inline-flex items-center gap-1.5 justify-center">
+                  <!-- Visualizar Ficha -->
+                  <router-link 
+                    :to="'/riscos/' + m.id"
+                    class="inline-flex items-center gap-1 text-gray-700 hover:text-blue-700 font-semibold text-xs px-2.5 py-1 rounded bg-gray-100 hover:bg-blue-50 transition border border-gray-200"
+                    title="Visualizar ficha de risco"
+                  >
+                    <span>👁️</span>
+                    <span>Visualizar</span>
+                  </router-link>
 
-                <!-- Se não pode editar: link de Visualização (somente leitura) -->
-                <router-link 
-                  v-else
-                  :to="'/riscos/' + m.id + '/editar'"
-                  class="inline-flex items-center text-gray-600 hover:text-gray-800 font-medium text-xs px-2.5 py-1 rounded hover:bg-gray-100 transition"
-                  title="Visualizar ficha de risco (somente leitura)"
-                >
-                  Visualizar
-                </router-link>
+                  <!-- Editar (se pode editar) -->
+                  <router-link 
+                    v-if="m.pode_editar"
+                    :to="'/riscos/' + m.id + '/editar'"
+                    class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold text-xs px-2.5 py-1 rounded hover:bg-blue-50 transition"
+                    title="Editar ficha de risco"
+                  >
+                    <span>✏️</span>
+                    <span>Editar</span>
+                  </router-link>
+
+                  <!-- Imprimir Individual -->
+                  <button
+                    type="button"
+                    @click="imprimirFichaIndividual(m.id)"
+                    class="inline-flex items-center text-emerald-700 hover:text-emerald-900 text-xs px-2 py-1 rounded hover:bg-emerald-50 transition cursor-pointer"
+                    title="Imprimir esta ficha em formato A4"
+                  >
+                    <span>🖨️</span>
+                  </button>
+
+                  <!-- Excluir Individual (se pode excluir) -->
+                  <button
+                    v-if="m.pode_excluir"
+                    type="button"
+                    @click="excluirFichaIndividual(m)"
+                    class="inline-flex items-center text-rose-600 hover:text-rose-800 text-xs px-2 py-1 rounded hover:bg-rose-50 transition cursor-pointer"
+                    title="Excluir esta ficha de risco"
+                  >
+                    <span>🗑️</span>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -547,6 +584,43 @@ async function confirmarExclusaoLote() {
     alert(err.response?.data?.detail || 'Erro ao excluir fichas selecionadas em lote.');
   } finally {
     excluindoLote.value = false;
+  }
+}
+
+async function imprimirFichaIndividual(id: number) {
+  try {
+    const res = await api.get(`/api/riscos/${id}`);
+    fichasParaImpressaoLote.value = [res.data];
+    await nextTick();
+    setTimeout(() => {
+      window.print();
+    }, 200);
+  } catch (err: any) {
+    console.error('Erro ao carregar ficha para impressão:', err);
+    alert(err.response?.data?.detail || 'Erro ao carregar dados da ficha para impressão.');
+  }
+}
+
+async function excluirFichaIndividual(m: any) {
+  if (!m.pode_excluir) {
+    alert('Você não possui permissão para excluir esta ficha de risco.');
+    return;
+  }
+
+  const proc = m.processo_outro || m.processo?.nome || 'Processo';
+  const unid = m.unidade?.nome || 'Unidade';
+  const confirmou = confirm(
+    `ATENÇÃO: Deseja realmente excluir permanentemente a Ficha de Risco #${m.id}?\n\nProcesso: ${proc}\nUnidade: ${unid}\n\nTodos os eventos de risco, avaliações da matriz, controles e planos associados serão removidos do sistema.\n\nDeseja continuar? Esta ação NÃO pode ser desfeita.`
+  );
+  if (!confirmou) return;
+
+  try {
+    const res = await api.delete(`/api/riscos/${m.id}`);
+    alert(res.data.message || `Ficha #${m.id} excluída com sucesso.`);
+    await carregarMapeamentos();
+  } catch (err: any) {
+    console.error('Erro ao excluir ficha de risco:', err);
+    alert(err.response?.data?.detail || 'Erro ao excluir ficha de risco.');
   }
 }
 

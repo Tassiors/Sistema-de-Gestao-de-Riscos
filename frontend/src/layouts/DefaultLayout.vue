@@ -1,9 +1,12 @@
 <template>
   <div class="relative h-screen overflow-hidden md:flex print:h-auto print:overflow-visible print:block">
     <!-- Mobile Menu Header -->
-    <div class="bg-paper-sidebar text-gray-100 flex justify-between md:hidden shrink-0 print:hidden">
-      <router-link to="/riscos" class="block p-4 text-white font-bold">{{ SYSTEM_TITLE }}</router-link>
-      <button @click="sidebarOpen = !sidebarOpen" class="p-4 focus:outline-none focus:bg-paper-active-link">
+    <div class="bg-paper-sidebar text-gray-100 flex justify-between items-center px-4 py-3 md:hidden shrink-0 print:hidden">
+      <router-link to="/riscos" class="flex items-center space-x-2 text-white font-bold">
+        <img src="/siger_icon.jpg" alt="SIGER" class="w-8 h-8 rounded-lg object-contain bg-white p-0.5 shadow-sm" />
+        <span>SIGER</span>
+      </router-link>
+      <button @click="sidebarOpen = !sidebarOpen" class="p-2 focus:outline-none focus:bg-paper-active-link rounded-lg">
         <Bars3Icon class="h-6 w-6" />
       </button>
     </div>
@@ -17,16 +20,19 @@
       class="bg-paper-sidebar text-gray-100 pt-7 pb-2 px-2 absolute inset-y-0 left-0 transform md:relative md:translate-x-0 transition-all duration-300 ease-in-out z-20 h-full shrink-0 flex flex-col justify-between print:hidden"
     >
       <div>
-        <!-- Clique em "Nome do Sistema" recolhe/expande a barra lateral -->
+        <!-- Clique em "SIGER" recolhe/expande a barra lateral -->
         <div 
           @click="toggleSidebar" 
           title="Clique para recolher / expandir o menu"
-          class="cursor-pointer text-white flex items-center space-x-3 px-3 mb-6 hover:opacity-90 transition duration-150 group"
+          class="cursor-pointer text-white flex items-center space-x-3 px-3 mb-6 hover:opacity-95 transition duration-150 group"
         >
-          <CubeTransparentIcon class="h-8 w-8 shrink-0 group-hover:scale-105 transition-transform" />
-          <span v-if="!isCollapsed" class="text-xl font-extrabold leading-snug break-words select-none">
-            {{ SYSTEM_TITLE }}
-          </span>
+          <div class="w-10 h-10 rounded-xl bg-white p-0.5 shadow-sm flex items-center justify-center shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
+            <img src="/siger_icon.jpg" alt="SIGER" class="w-full h-full object-contain rounded-lg" />
+          </div>
+          <div v-if="!isCollapsed" class="truncate select-none">
+            <span class="text-lg font-black tracking-wider text-white block leading-tight">SIGER</span>
+            <span class="text-[9px] font-semibold text-emerald-300 tracking-wider block uppercase truncate">Gestão de Riscos</span>
+          </div>
         </div>
 
         <div class="px-3 my-4">
@@ -122,7 +128,6 @@
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
-  CubeTransparentIcon,
   Bars3Icon,
   ArrowRightOnRectangleIcon,
   ShieldExclamationIcon,
@@ -133,7 +138,7 @@ import {
 import ProfileDropdown from '../components/ProfileDropdown.vue';
 import Button from '../components/Button.vue';
 import { useAuthStore } from '../stores/auth';
-import { APP_VERSION, APP_NAME, SYSTEM_TITLE } from '../config/version';
+import { APP_VERSION, APP_NAME } from '../config/version';
 
 const sidebarOpen = ref(false);
 const isCollapsed = ref(false);

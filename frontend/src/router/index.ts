@@ -4,6 +4,7 @@ import Login from '../views/Login.vue';
 import PainelRiscos from '../views/riscos/PainelRiscos.vue';
 import RiscosMapeadosView from '../views/riscos/RiscosMapeadosView.vue';
 import MapeamentoWizard from '../views/riscos/MapeamentoWizard.vue';
+import FichaVisualizacaoView from '../views/riscos/FichaVisualizacaoView.vue';
 import GestaoUsuariosVisibilidade from '../views/admin/GestaoUsuariosVisibilidade.vue';
 
 const routes = [
@@ -33,6 +34,12 @@ const routes = [
     path: '/riscos/novo',
     name: 'Novo Mapeamento',
     component: MapeamentoWizard,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/riscos/:id',
+    name: 'Visualizar Ficha',
+    component: FichaVisualizacaoView,
     meta: { requiresAuth: true },
   },
   {

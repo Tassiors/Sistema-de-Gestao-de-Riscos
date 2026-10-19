@@ -41,7 +41,8 @@ async def obter_subunidades_recursivas(db: AsyncSession, unidade_id: int) -> Lis
 async def listar_processos_hierarquicos(
     db: AsyncSession,
     unidade_id: Optional[int] = None,
-    transversal_only: bool = False
+    transversal_only: bool = False,
+    incluir_processo_id: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """
     Retorna os macroprocessos e processos elegíveis para a unidade indicada.
@@ -50,6 +51,7 @@ async def listar_processos_hierarquicos(
     - Se unidade_id for informada: exibe os processos específicos da própria unidade,
       os processos de todas as unidades/setores subordinados a ela no organograma,
       e todos os Processos Comuns a todas as áreas (is_transversal = True).
+    - Se incluir_processo_id for fornecido: garante a presença do processo indicado.
     - Se unidade_id for None: exibe o catálogo completo.
     - Oculta projetos estratégicos (iniciados com padrão [código]).
     """
@@ -66,6 +68,8 @@ async def listar_processos_hierarquicos(
         )
         res_assoc = await db.execute(stmt_assoc)
         processos_permitidos_ids = set(res_assoc.scalars().all())
+        if incluir_processo_id:
+            processos_permitidos_ids.add(incluir_processo_id)
 
     # 2. Carrega os macroprocessos e processos
     stmt = (

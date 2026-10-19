@@ -25,17 +25,20 @@ router = APIRouter(
 async def listar_macroprocessos_e_processos(
     unidade_id: Optional[int] = Query(None, description="Filtrar processos vinculados à unidade, suas subunidades e processos comuns"),
     transversal_only: bool = Query(False, description="Filtrar apenas processos transversais/comuns"),
+    incluir_processo_id: Optional[int] = Query(None, description="ID de processo a incluir obrigatoriamente no catálogo retornado"),
     db: AsyncSession = Depends(get_app_db_session)
 ):
     """
     Retorna o catálogo hierárquico de Macroprocessos e Processos do Hospital Tipo II.
     Se unidade_id for fornecida, retorna apenas os processos específicos da unidade/setor/gerência
     (incluindo suas subunidades no organograma) juntamente com os Processos Comuns a todas as áreas.
+    Se incluir_processo_id for fornecido, garante a inclusão desse processo específico.
     """
     return await processo_controller.listar_processos_hierarquicos(
         db=db,
         unidade_id=unidade_id,
-        transversal_only=transversal_only
+        transversal_only=transversal_only,
+        incluir_processo_id=incluir_processo_id
     )
 
 

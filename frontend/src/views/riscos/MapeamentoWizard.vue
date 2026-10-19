@@ -40,10 +40,13 @@
             <template v-if="podeEditarFicha">
               <button 
                 @click="salvar(false)" 
-                :disabled="salvando"
-                class="px-3.5 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+                :disabled="salvando || !podeSalvarRascunho"
+                :class="podeSalvarRascunho ? 'bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer shadow-xs border border-gray-300' : 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60 border border-gray-200'"
+                class="px-3.5 py-2 text-xs sm:text-sm font-medium rounded-lg transition flex items-center gap-1.5"
+                :title="tooltipSalvarRascunho"
               >
-                Salvar Rascunho
+                <span>💾</span>
+                <span>Salvar Rascunho</span>
               </button>
               <button 
                 @click="salvar(true)" 
@@ -650,7 +653,7 @@
               Análise de Controles Internos Existentes *
             </h4>
             <p class="text-xs text-gray-500 mt-0.5">
-              Selecione o nível de maturidade dos controles instituídos no setor. O Fator Numérico do Controle (FNC) é fixado pelo nível escolhido e independe da quantidade de medidas listadas.
+              Selecione o nível de maturidade dos controles instituídos no setor. O Fator de Mitigação é fixado pelo nível escolhido e independe da quantidade de medidas listadas.
             </p>
           </div>
 
@@ -666,13 +669,15 @@
                 : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300'"
             >
               <div>
-                <div class="flex items-center justify-between gap-1 mb-1.5">
-                  <span class="font-bold text-xs" :class="avaliacao.nivel_controle === nivel.valor ? 'text-blue-900' : 'text-gray-800'">
+                <div class="mb-2">
+                  <span class="font-bold text-xs block" :class="avaliacao.nivel_controle === nivel.valor ? 'text-blue-900' : 'text-gray-800'">
                     {{ nivel.rotulo }}
                   </span>
-                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded font-bold shrink-0" :class="nivel.badge">
-                    FNC {{ nivel.fnc.toFixed(1) }}
-                  </span>
+                  <div class="mt-1">
+                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded font-bold inline-block" :class="nivel.badge">
+                      Fator de Mitigação: {{ nivel.fnc.toFixed(1) }}
+                    </span>
+                  </div>
                 </div>
                 <p class="text-[11px] leading-relaxed" :class="avaliacao.nivel_controle === nivel.valor ? 'text-blue-950/80' : 'text-gray-600'">
                   {{ nivel.definicao }}
@@ -688,7 +693,7 @@
           <!-- Seção de Medidas de Controle (Oculta se Inexistente) -->
           <div v-if="avaliacao.nivel_controle === 'INEXISTENTE'" class="text-xs text-gray-600 bg-amber-50 p-3.5 rounded-lg border border-amber-200 flex items-center gap-2">
             <span class="text-base">ℹ️</span>
-            <span>Como os controles foram classificados como <strong>Inexistentes</strong>, não há medidas de controle vigentes a descrever. O Fator Numérico aplicado é <strong>1,0 (sem redução de risco)</strong>.</span>
+            <span>Como os controles foram classificados como <strong>Inexistentes</strong>, não há medidas de controle vigentes a descrever. O Fator de Mitigação aplicado é <strong>1,0 (sem redução de risco)</strong>.</span>
           </div>
 
           <div v-else class="space-y-3 pt-2 border-t border-gray-200">
@@ -770,10 +775,10 @@
             </span>
           </div>
 
-          <!-- 2. Fator de Mitigação (FNC) -->
+          <!-- 2. Fator de Mitigação -->
           <div class="relative group">
             <div class="flex items-center justify-center gap-1">
-              <span class="text-xs text-gray-500 font-medium">Fator de Mitigação (FNC)</span>
+              <span class="text-xs text-gray-500 font-medium">Fator de Mitigação</span>
               <button 
                 type="button" 
                 @click.stop="togglePopup('fnc')"
@@ -793,7 +798,7 @@
             >
               <div class="flex items-center gap-1.5 font-bold text-purple-950 text-xs mb-1">
                 <span>🛡️</span>
-                <span>Fator de Mitigação (FNC)</span>
+                <span>Fator de Mitigação</span>
               </div>
               <p class="text-[11px] text-purple-800 leading-relaxed">
                 Índice numérico que expressa o grau de robustez e maturidade dos controles internos instituídos na prevenção e redução do risco.
@@ -832,7 +837,7 @@
                 <span>Risco Residual</span>
               </div>
               <p class="text-[11px] text-emerald-800 leading-relaxed">
-                Risco remanescente a que a organização continua exposta <strong>após a consideração</strong> das ações e controles gerenciais. Calculado por <em>Risco Inerente × FNC</em>.
+                Risco remanescente a que a organização continua exposta <strong>após a consideração</strong> das ações e controles gerenciais. Calculado por <em>Risco Inerente × Fator de Mitigação</em>.
               </p>
               <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-white"></div>
             </div>
@@ -929,7 +934,7 @@
                     :class="calculo.acima_apetite ? 'text-rose-950' : 'text-emerald-950'"
                   >
                     <template v-if="calculo.acima_apetite">
-                      Este risco possui resultado residual <strong>superior a 7,99 (Classificação {{ calculo.classificacao }})</strong>. Conforme deliberação do <strong>Colegiado Executivo do HC-UFPE</strong>, é <strong>OBRIGATÓRIO</strong> elaborar <strong>Plano de Ação (5W2H)</strong> e <strong>Plano de Contingência</strong> na próxima etapa.
+                      Este risco possui resultado residual <strong>superior a 7,99 (Classificação {{ calculo.classificacao }})</strong>. Conforme deliberação do <strong>Colegiado Executivo do HC-UFPE</strong>, é <strong>OBRIGATÓRIO</strong> elaborar <strong>Plano de Ação</strong> e <strong>Plano de Contingência</strong> na próxima etapa.
                     </template>
                     <template v-else>
                       Este risco está <strong>dentro da tolerância institucional (≤ 7,99)</strong> homologada pelo <strong>Colegiado Executivo</strong>. O risco é tolerado e <strong>não exige tratamento compulsório</strong>, embora novas medidas preventivas possam ser adotadas voluntariamente na Etapa 5.
@@ -948,23 +953,23 @@
         </div>
       </div>
 
-      <!-- ETAPA 5: Resposta, 5W2H e Contingência -->
+      <!-- ETAPA 5: Resposta, Planos de Ação e Contingência -->
       <div v-show="etapaAtual === 5" class="space-y-6">
         <div class="border-b pb-3">
           <h3 class="text-base font-bold text-gray-800">5. Respostas aos Riscos, Planos de Ação e Contingência</h3>
           <p class="text-xs text-gray-500">Elabore o plano de ação e plano de contingência com gatilhos operacionais.</p>
         </div>
 
-        <!-- Planos de Ação 5W2H -->
+        <!-- Planos de Ação -->
         <div class="space-y-3">
           <div class="flex justify-between items-center">
-            <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Planos de Ação (Metodologia 5W2H)</h4>
+            <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Planos de Ação</h4>
             <button 
               type="button" 
               @click="adicionarPlanoAcao"
               class="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
             >
-              + Adicionar Ação 5W2H
+              + Adicionar Ação
             </button>
           </div>
 
@@ -1002,11 +1007,11 @@
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-[11px] font-semibold text-gray-600 mb-1">O que fazer? (What)</label>
+                  <label class="block text-[11px] font-semibold text-gray-600 mb-1">O que fazer?</label>
                   <input v-model="pa.o_que" type="text" placeholder="Ação detalhada" class="w-full text-xs border-gray-300 rounded p-2 border" />
                 </div>
                 <div>
-                  <label class="block text-[11px] font-semibold text-gray-600 mb-1">Como fazer? (How)</label>
+                  <label class="block text-[11px] font-semibold text-gray-600 mb-1">Como fazer?</label>
                   <input v-model="pa.como" type="text" placeholder="Método / Recursos" class="w-full text-xs border-gray-300 rounded p-2 border" />
                 </div>
               </div>
@@ -1223,7 +1228,7 @@
               <span class="text-[9px] text-gray-500 block">P × I</span>
             </div>
             <div class="p-1.5 bg-gray-50/70 rounded border border-gray-200">
-              <span class="text-[9px] uppercase text-gray-500 font-bold block">Controles / FNC</span>
+              <span class="text-[9px] uppercase text-gray-500 font-bold block">Fator de Mitigação</span>
               <span class="text-sm font-extrabold text-gray-900">{{ calculo.fator_mitigacao }}</span>
               <span class="text-[9px] text-gray-600 block truncate">{{ nivelControleSelecionado?.rotulo || 'Inexistente' }}</span>
             </div>
@@ -1250,7 +1255,7 @@
           <div>
             <span class="font-bold text-gray-700 block mb-0.5 text-[11px]">Controles Internos Existentes Registrados:</span>
             <div v-if="avaliacao.controles.length === 0" class="text-gray-400 italic text-[11px]">
-              Nenhum controle formal associado (Nível Inexistente / FNC 1.0).
+              Nenhum controle formal associado (Nível Inexistente / Fator de Mitigação 1.0).
             </div>
             <ol v-else class="list-decimal pl-5 space-y-0.5 text-gray-800 text-[11px]">
               <li v-for="(c, cIdx) in avaliacao.controles" :key="cIdx">
@@ -1351,7 +1356,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../../services/api';
 import MatrizRisco5x5 from '../../components/riscos/MatrizRisco5x5.vue';
@@ -1363,6 +1368,7 @@ const etapaAtual = ref(1);
 const salvando = ref(false);
 const popupAtivo = ref<string | null>(null);
 const etapa3Avancada = ref(false);
+const processoCarregadoFicha = ref<any>(null);
 
 function togglePopup(tipo: string) {
   popupAtivo.value = popupAtivo.value === tipo ? null : tipo;
@@ -1559,10 +1565,14 @@ const processoSelecionado = computed(() => {
       };
     }
   }
+  if (processoCarregadoFicha.value && processoCarregadoFicha.value.id === form.processo_id) {
+    return processoCarregadoFicha.value;
+  }
   return null;
 });
 
 const isProcessoOutro = computed(() => {
+  if (form.processo_outro && form.processo_outro.trim()) return true;
   if (!form.processo_id) return false;
   for (const m of macroprocessos.value) {
     const p = m.processos?.find((x: any) => x.id === form.processo_id);
@@ -1912,12 +1922,14 @@ function getClassificacaoBadge(classif: string) {
   }
 }
 
-async function carregarProcessos(unidadeId?: number | null) {
+async function carregarProcessos(unidadeId?: number | null, incluirProcessoId?: number | null) {
   try {
-    const params = unidadeId ? { unidade_id: unidadeId } : {};
+    const params: any = {};
+    if (unidadeId) params.unidade_id = unidadeId;
+    if (incluirProcessoId) params.incluir_processo_id = incluirProcessoId;
     const [resP, resOutros] = await Promise.all([
       api.get('/api/processos', { params }),
-      api.get('/api/processos/outros', { params })
+      api.get('/api/processos/outros', { params: unidadeId ? { unidade_id: unidadeId } : {} })
     ]);
     macroprocessos.value = resP.data;
     processosOutrosCadastrados.value = resOutros.data || [];
@@ -2045,6 +2057,21 @@ const formAlterado = computed(() => {
   return snapshotOriginal.value !== gerarSnapshot();
 });
 
+const podeSalvarRascunho = computed(() => {
+  if (!podeEditarFicha.value) return false;
+  return formAlterado.value;
+});
+
+const tooltipSalvarRascunho = computed(() => {
+  if (!podeEditarFicha.value) {
+    return 'Modo Somente Leitura: você não possui permissão para editar esta ficha.';
+  }
+  if (!formAlterado.value) {
+    return 'Nenhuma alteração foi realizada na ficha. Altere algum campo para habilitar o salvamento do rascunho.';
+  }
+  return 'Salvar alterações realizadas no rascunho da ficha';
+});
+
 const statusEtapas = computed<Record<number, boolean>>(() => ({
   1: etapa1Valida.value,
   2: etapa2Valida.value,
@@ -2095,14 +2122,14 @@ const textoPendencias = computed(() => {
   if (!etapa4Valida.value) p.push('Etapa 4 (Matriz de Riscos - avance a partir da etapa 3)');
   if (!etapa5Valida.value) {
     const isAlto = calculo.classificacao === 'ALTO' || calculo.classificacao === 'EXTREMO';
-    p.push(isAlto ? 'Etapa 5 (Plano de Ação 5W2H obrigatório para riscos altos/extremos)' : 'Etapa 5 (Planos de Ação)');
+    p.push(isAlto ? 'Etapa 5 (Plano de Ação obrigatório para riscos altos/extremos)' : 'Etapa 5 (Planos de Ação)');
   }
   return p.join(', ');
 });
 
 async function onUnidadeChange() {
   if (form.unidade_id) {
-    await carregarProcessos(form.unidade_id);
+    await carregarProcessos(form.unidade_id, form.processo_id);
     let existe = false;
     for (const m of macroprocessos.value) {
       if (m.processos?.some((p: any) => p.id === form.processo_id)) {
@@ -2110,7 +2137,7 @@ async function onUnidadeChange() {
         break;
       }
     }
-    if (!existe) {
+    if (!existe && (!processoCarregadoFicha.value || processoCarregadoFicha.value.id !== form.processo_id)) {
       form.processo_id = null;
     }
   } else {
@@ -2132,7 +2159,7 @@ async function carregarAuxiliares() {
     if (!form.id && unidades.value.length === 1 && !form.unidade_id) {
       await selecionarUnidade(unidades.value[0]);
     } else if (form.unidade_id) {
-      await carregarProcessos(form.unidade_id);
+      await carregarProcessos(form.unidade_id, form.processo_id);
     }
   } catch (err) {
     console.error('Erro ao carregar dados auxiliares:', err);
@@ -2152,8 +2179,14 @@ async function carregarMapeamento(id: number) {
     form.criado_por = data.criado_por || null;
     podeEditarFicha.value = (data.pode_editar !== false);
 
+    // Garante que a unidade da ficha conste na lista de unidades para correta exibição
+    if (data.unidade && !unidades.value.some((u: any) => u.id === data.unidade.id)) {
+      unidades.value.push(data.unidade);
+    }
+
+    // Carrega processos incluindo obrigatoriamente o processo mapeado da ficha
     if (data.unidade_id) {
-      await carregarProcessos(data.unidade_id);
+      await carregarProcessos(data.unidade_id, data.processo_id);
     }
     form.processo_id = data.processo_id;
     form.processo_outro = data.processo_outro || '';
@@ -2162,6 +2195,46 @@ async function carregarMapeamento(id: number) {
     form.pilar_estrategico_id = data.pilar_estrategico_id;
     form.entrega_processo = data.entrega_processo;
     form.status = data.status;
+
+    // Registra os metadados do processo da ficha para fallback e garantia visual
+    if (data.processo || data.processo_nome) {
+      processoCarregadoFicha.value = {
+        id: data.processo_id,
+        nome: data.processo?.nome || data.processo_nome,
+        macroprocessoNome: data.processo?.macroprocesso?.nome || data.macroprocesso_nome || 'Processo Hospitalar',
+        permite_projeto: data.processo?.permite_projeto || false,
+        is_transversal: data.processo?.is_transversal || false
+      };
+
+      // Garante que o processo da ficha conste em macroprocessos.value para seleção e checkmark
+      let encontrado = false;
+      for (const m of macroprocessos.value) {
+        if (m.processos?.some((p: any) => p.id === data.processo_id)) {
+          encontrado = true;
+          break;
+        }
+      }
+      if (!encontrado && data.processo_id) {
+        const macroNome = processoCarregadoFicha.value.macroprocessoNome;
+        const macroExistente = macroprocessos.value.find((m: any) => m.nome === macroNome);
+        const procObj = {
+          id: processoCarregadoFicha.value.id,
+          nome: processoCarregadoFicha.value.nome,
+          is_transversal: processoCarregadoFicha.value.is_transversal,
+          permite_projeto: processoCarregadoFicha.value.permite_projeto
+        };
+        if (macroExistente) {
+          if (!macroExistente.processos) macroExistente.processos = [];
+          macroExistente.processos.unshift(procObj);
+        } else {
+          macroprocessos.value.unshift({
+            id: -1,
+            nome: macroNome,
+            processos: [procObj]
+          });
+        }
+      }
+    }
 
     if (data.eventos && data.eventos.length > 0) {
       const ev = data.eventos[0];
@@ -2196,6 +2269,13 @@ async function salvar(submeter: boolean) {
   if (!podeEditarFicha.value) {
     alert('Esta ficha está em modo somente leitura para o seu usuário.');
     return;
+  }
+
+  if (!submeter) {
+    if (!podeSalvarRascunho.value) {
+      alert('Nenhuma alteração foi realizada na ficha para salvar.');
+      return;
+    }
   }
 
   if (submeter) {
@@ -2291,16 +2371,80 @@ async function salvar(submeter: boolean) {
 }
 
 
+function resetarFormulario() {
+  form.id = null;
+  form.unidade_id = null;
+  form.processo_id = null;
+  form.processo_outro = '';
+  form.possui_projeto = false;
+  form.nome_projeto = '';
+  form.pilar_estrategico_id = null;
+  form.entrega_processo = '';
+  form.status = 'RASCUNHO';
+  form.versao = 1;
+  form.tag_versao = 'v1.0 (Original)';
+  form.submetido_em = null;
+  form.criado_em = null;
+  form.criado_por = null;
+  podeEditarFicha.value = true;
+  processoCarregadoFicha.value = null;
+
+  evento.categoria = 'OPERACIONAL';
+  evento.causa = '';
+  evento.descricao_evento = '';
+  evento.consequencia = '';
+  evento.planos_acao = [];
+  evento.planos_contingencia = [];
+
+  avaliacao.probabilidade = null;
+  avaliacao.impacto = null;
+  avaliacao.nivel_controle = 'INEXISTENTE';
+  avaliacao.controles = [];
+
+  calculo.risco_inerente = null;
+  calculo.fator_mitigacao = 1.0;
+  calculo.risco_residual = null;
+  calculo.classificacao = '-';
+  calculo.acima_apetite = false;
+
+  etapaAtual.value = 1;
+  etapa3Avancada.value = false;
+}
+
 onMounted(async () => {
   document.addEventListener('click', handleClickOutside);
-  await carregarAuxiliares();
   const idParam = route.params.id;
   if (idParam) {
+    form.id = Number(idParam);
+    await carregarAuxiliares();
     await carregarMapeamento(Number(idParam));
   } else {
+    await carregarAuxiliares();
     recalcular();
+    nextTick(() => {
+      snapshotOriginal.value = gerarSnapshot();
+    });
   }
 });
+
+watch(
+  () => route.params.id,
+  async (novoId) => {
+    if (novoId) {
+      if (Number(novoId) !== form.id) {
+        form.id = Number(novoId);
+        await carregarMapeamento(Number(novoId));
+      }
+    } else {
+      resetarFormulario();
+      await carregarAuxiliares();
+      recalcular();
+      nextTick(() => {
+        snapshotOriginal.value = gerarSnapshot();
+      });
+    }
+  }
+);
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);

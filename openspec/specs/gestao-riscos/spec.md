@@ -71,7 +71,7 @@ The system SHALL calculate risk severity based on Probability, Impact and Mitiga
 #### Scenario: Risco acima da tolerância institucional
 - **GIVEN** a calculated residual risk score $> 7.99$ (classifications `Alto` or `Extremo`),
 - **WHEN** the user completes the risk evaluation,
-- **THEN** the system SHALL mandate the registration of at least one 5W2H Action Plan and at least one Contingency Plan with an operational trigger.
+- **THEN** the system SHALL mandate the registration of at least one Action Plan and at least one Contingency Plan with an operational trigger.
 
 ---
 

@@ -69,13 +69,13 @@ def calcular_severidade_risco(
 ) -> Dict[str, Any]:
     """
     Motor oficial de cálculo do Risco Inerente e Risco Residual (Guia UGERC.001 / Tabela 3).
-    O Fator Numérico do Controle (FNC) é determinado exclusivamente pelo nível selecionado:
+    O Fator de Mitigação dos Controles é determinado exclusivamente pelo nível selecionado:
     - INEXISTENTE: 1.0 (Muito Alto)
     - FRACO: 0.8 (Alto)
     - MEDIANO: 0.6 (Médio)
     - SATISFATORIO: 0.4 (Baixo)
     - FORTE: 0.2 (Muito Baixo)
-    O número de medidas de controle descritas NÃO altera o FNC.
+    O número de medidas de controle descritas NÃO altera o Fator de Mitigação.
     """
     p = max(1, min(5, probabilidade)) if probabilidade else 1
     i = max(1, min(5, impacto)) if impacto else 1
@@ -344,14 +344,14 @@ def validar_todas_etapas_submissao(dados: Dict[str, Any]):
             if calc["classificacao"] in ("ALTO", "EXTREMO"):
                 planos_acao = ev.get("planos_acao", [])
                 if not planos_acao:
-                    erros.append(f"Etapa 5: Risco classificado como {calc['classificacao']} ({calc['risco_residual']}). É obrigatório registrar ao menos um Plano de Ação 5W2H para o evento #{idx}.")
+                    erros.append(f"Etapa 5: Risco classificado como {calc['classificacao']} ({calc['risco_residual']}). É obrigatório registrar ao menos um Plano de Ação para o evento #{idx}.")
 
             # Valida preenchimento dos planos de ação existentes
             for pa_idx, pa in enumerate(ev.get("planos_acao", []), start=1):
                 if not str(pa.get("o_que", "")).strip():
-                    erros.append(f"Etapa 5: O que fazer (What) do Plano de Ação #{pa_idx} é obrigatório.")
+                    erros.append(f"Etapa 5: O que fazer do Plano de Ação #{pa_idx} é obrigatório.")
                 if not str(pa.get("como", "")).strip():
-                    erros.append(f"Etapa 5: Como fazer (How) do Plano de Ação #{pa_idx} é obrigatório.")
+                    erros.append(f"Etapa 5: Como fazer do Plano de Ação #{pa_idx} é obrigatório.")
                 if not str(pa.get("quem", "")).strip():
                     erros.append(f"Etapa 5: Quem (Responsável) do Plano de Ação #{pa_idx} é obrigatório.")
                 if not str(pa.get("data_inicio", "")).strip() or not str(pa.get("data_termino", "")).strip():

@@ -520,5 +520,80 @@ def test_obter_detalhes_em_lote_para_impressao(client):
     client.post("/api/riscos/excluir-lote", json={"ids": ids}, headers=headers)
 
 
+def test_consultar_e_excluir_ficha_individual(client):
+    """
+    Testa a consulta detalhada de uma ficha de risco (GET /api/riscos/{id})
+    e sua posterior exclusão individual (DELETE /api/riscos/{id}).
+    """
+    token = client.post("/api/login", data={"username": "admin", "password": "admin"}).json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    unidade_id = client.get("/api/unidades", headers=headers).json()[0]["id"]
+    macros = client.get("/api/processos", headers=headers).json()
+    processo_id = macros[0]["processos"][0]["id"]
+
+    # 1. Cria a ficha
+    payload = {
+        "unidade_id": unidade_id,
+        "processo_id": processo_id,
+        "entrega_processo": "Entrega Teste Individual",
+        "status": "SUBMETIDO",
+        "eventos": [
+            {
+                "categoria": "ASSISTENCIAL",
+                "causa": "Falha no processo de triagem",
+                "descricao_evento": "Atraso no atendimento clínico",
+                "consequencia": "Prejuízo à assistência",
+                "avaliacao": {
+                    "probabilidade": 4,
+                    "impacto": 3,
+                    "nivel_controle": "MEDIANO",
+                    "controles": [{"descricao_controle": "Protocolo de acolhimento"}]
+                },
+                "planos_acao": [
+                    {
+                        "tipo_resposta": "MITIGAR",
+                        "o_que": "Capacitação contínua",
+                        "como": "Treinamento em serviço",
+                        "quem": "Gestão Assistencial",
+                        "data_inicio": "2026-02-01",
+                        "data_termino": "2026-08-01"
+                    }
+                ],
+                "planos_contingencia": []
+            }
+        ]
+    }
+    res_create = client.post("/api/riscos", json=payload, headers=headers)
+    assert res_create.status_code == 200
+    ficha_id = res_create.json()["id"]
+
+    # 2. Consulta detalhada (GET /api/riscos/{id})
+    res_get = client.get(f"/api/riscos/{ficha_id}", headers=headers)
+    assert res_get.status_code == 200
+    ficha = res_get.json()
+    assert ficha["id"] == ficha_id
+    assert ficha["pode_editar"] is True
+    assert ficha["pode_excluir"] is True
+    assert ficha["unidade"]["id"] == unidade_id
+    assert ficha["processo"]["id"] == processo_id
+    assert len(ficha["eventos"]) == 1
+    assert ficha["eventos"][0]["descricao_evento"] == "Atraso no atendimento clínico"
+    assert ficha["eventos"][0]["avaliacao"]["probabilidade"] == 4
+    assert ficha["eventos"][0]["avaliacao"]["impacto"] == 3
+    assert len(ficha["eventos"][0]["avaliacao"]["controles"]) == 1
+    assert len(ficha["eventos"][0]["planos_acao"]) == 1
+
+    # 3. Exclusão individual (DELETE /api/riscos/{id})
+    res_del = client.delete(f"/api/riscos/{ficha_id}", headers=headers)
+    assert res_del.status_code == 200
+    assert "excluíd" in res_del.json().get("message", "").lower()
+
+    # 4. Verifica que não existe mais (404)
+    res_pos_del = client.get(f"/api/riscos/{ficha_id}", headers=headers)
+    assert res_pos_del.status_code == 404
+
+
+
 
 

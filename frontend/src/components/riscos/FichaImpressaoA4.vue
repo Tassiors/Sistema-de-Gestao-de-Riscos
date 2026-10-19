@@ -130,7 +130,7 @@
               <span class="text-[9px] text-gray-500 block">P × I</span>
             </div>
             <div class="p-1.5 bg-gray-50/70 rounded border border-gray-200">
-              <span class="text-[9px] uppercase text-gray-500 font-bold block">Controles / FNC</span>
+              <span class="text-[9px] uppercase text-gray-500 font-bold block">Fator de Mitigação</span>
               <span class="text-sm font-extrabold text-gray-900">{{ getAvaliacaoPrincipal(dadosFicha)?.fator_mitigacao ?? 1.0 }}</span>
               <span class="text-[9px] text-gray-600 block truncate">{{ getRotuloControle(dadosFicha) }}</span>
             </div>
@@ -157,7 +157,7 @@
           <div>
             <span class="font-bold text-gray-700 block mb-0.5 text-[11px]">Controles Internos Existentes Registrados:</span>
             <div v-if="!getAvaliacaoPrincipal(dadosFicha)?.controles || getAvaliacaoPrincipal(dadosFicha).controles.length === 0" class="text-gray-400 italic text-[11px]">
-              Nenhum controle formal associado (Nível Inexistente / FNC 1.0).
+              Nenhum controle formal associado (Nível Inexistente / Fator de Mitigação 1.0).
             </div>
             <ol v-else class="list-decimal pl-5 space-y-0.5 text-gray-800 text-[11px]">
               <li v-for="(c, cIdx) in getAvaliacaoPrincipal(dadosFicha).controles" :key="cIdx">

@@ -1,8 +1,15 @@
 <template>
   <div class="w-full max-w-md">
+    <!-- Logotipo SIGER -->
+    <div class="mb-5 text-center">
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 inline-block w-full max-w-sm mx-auto">
+        <img src="/siger_logo.jpg" alt="SIGER - Sistema Integrado de Gestão de Riscos - HC-UFPE" class="w-full h-auto rounded-xl object-contain" />
+      </div>
+    </div>
+
     <Card>
       <template #header>
-        <h1 class="text-xl font-semibold text-center">Login</h1>
+        <h1 class="text-xl font-semibold text-center text-gray-800">Acesso ao Sistema</h1>
       </template>
       <form @submit.prevent="handleLogin">
         <div class="mb-4">
