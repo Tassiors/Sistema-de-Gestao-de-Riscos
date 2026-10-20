@@ -6,7 +6,7 @@
 import { ref } from 'vue';
 import api from '../services/api';
 
-export const APP_VERSION = ref('1.1.0');
+export const APP_VERSION = ref('1.1.1');
 export const APP_NAME = ref('SIGER - Sistema Integrado de Gestão de Riscos');
 export const SYSTEM_TITLE = ref('SIGER');
 export const HOSPITAL_NAME = ref('Hospital das Clínicas da UFPE (HC-UFPE / EBSERH)');

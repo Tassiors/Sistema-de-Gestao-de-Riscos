@@ -807,6 +807,11 @@ async def salvar_mapeamento(
         if not is_admin:
             if not u_obj or not u_obj.unidade_principal_id:
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuário sem unidade principal configurada.")
+            if u_obj.perfil != "GESTOR_UNIDADE":
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Apenas gestores de unidade possuem permissão para cadastrar mapeamentos de risco. Usuários com perfil de consulta possuem acesso apenas para visualização."
+                )
             sub_ids_usuario = await obter_subunidades_recursivas(db, u_obj.unidade_principal_id)
             if unidade_id not in sub_ids_usuario:
                 raise HTTPException(
